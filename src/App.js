@@ -3,19 +3,23 @@ import React, {useState, useEffect} from 'react';
 import './App.css';
 
 import axios from 'axios';
+
+
 import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 
 import Select from 'react-select';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import L from 'leaflet';
-import { Map, TileLayer, FeatureGroup, useLeaflet, Polygon, Marker, Popup } from "react-leaflet";
+import { Map, TileLayer, FeatureGroup, useLeaflet, Polygon, Marker, Popup, LayerGroup, LayersControl } from "react-leaflet";
+import "leaflet-editable";
 import Basemap from './Basemaps';
 // import { EditControl } from "react-leaflet-draw";
 import './Map.css';
 
 import BootstrapTable from 'react-bootstrap-table-next';
 import ToolkitProvider, { CSVExport } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
+// import { polygon } from 'leaflet';
 
 const { ExportCSVButton } = CSVExport;
 delete L.Icon.Default.prototype._getIconUrl;
@@ -29,6 +33,149 @@ L.Icon.Default.mergeOptions({
 });
 
 let selectedPolygons = [];
+let all_years_data = {}
+class EditMap extends React.Component {
+  state = {
+    mapOptions: {
+      center: [ 48.5189, 135.2786 ],
+      zoom: 13,
+      editable: true,
+    },
+    editing: null,
+    polygons: this.props.data,
+    basemap: 'osm'
+  }
+  onBMChange = (bm) => {
+    this.setState({
+      basemap: bm
+    });
+  }
+
+  mapRef = React.createRef()
+  polygonRefs = []
+
+  onClick = e => {
+    const index = +e.target.dataset.index;
+    const refs = this.polygonRefs;
+
+    this.setState(({ editing }) => {
+      refs.forEach((n, i) => {
+        const method = i === index && editing !== index
+          ? 'enableEdit'
+          : 'disableEdit';
+        n.leafletElement[method]();
+      });
+      return {
+        editing: editing === index ? null : index,
+      };
+    });
+  }
+  
+  onClick1 = e => {
+    const refs = this.polygonRefs;
+
+    this.setState(({ editing }) => {
+      refs.forEach((n, i) => {
+        n.leafletElement['disableEdit']();
+      });
+
+      return {
+        editing: null,
+      };
+    });
+  }
+
+  onLoad = e => {
+    e.target.on('editable:disable', this.onEditEnd);
+  }
+
+  onEditEnd = ( {layer} ) => {
+    
+    function updatePolygon(polygon, newCoords){
+      let newDataPolygon = polygon
+      newDataPolygon.geometry.coordinates = [newCoords._latlngs]
+      return newDataPolygon
+    }
+
+    this.setState(({ polygons }) => ({
+      polygons: polygons.map((n, i) => i === layer.options.index ? 
+      updatePolygon(n, layer) : n
+      ),
+    }));
+  }
+
+  render() {
+    const { polygons, editing } = this.state;
+    const refs = this.polygonRefs = [];
+
+    return (
+      <div>
+          <button
+            className={editing !== null ? 'active' : ''}
+            onClick={this.onClick1}
+          >сохранить</button>
+        <Map
+          {...this.state.mapOptions}
+          ref={this.mapRef}
+          whenReady={this.onLoad}
+        >
+          <LayersControl>
+            <LayersControl.BaseLayer name="Open Street Map">
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            </LayersControl.BaseLayer>
+            <LayersControl.BaseLayer checked name="Google Map">
+              <TileLayer
+                attribution="Google Maps"
+                url="https://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}"
+              />
+            </LayersControl.BaseLayer>
+            <LayersControl.BaseLayer name="Google Map Satellite">
+              <LayerGroup>
+                <TileLayer
+                  attribution="Google Maps Satellite"
+                  url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
+                />
+                <TileLayer url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
+              </LayerGroup>
+            </LayersControl.BaseLayer>
+          </LayersControl>
+          {polygons.map((n, i) =>
+            <Polygon
+              key={i}
+              positions={n.geometry.coordinates[0]}
+              ref={ref => refs[i] = ref}
+              onEditabl_edisable={this.onEditEnd}
+              index={i}
+              color={ (n.properties.crop_info === null)? n.properties.crop_color : n.properties.crop_info.crop_color}
+            >
+            <Popup>
+              <p>номер реестра: {n.properties.reestr_number}</p>
+              <p>с\х культура: {(n.properties.crop_info === null)? n.properties.crop_color : n.properties.crop_info.crop_name}</p>
+              <p>год: {n.properties.year_}</p>
+              <p>площадь: {n.properties.area}</p>
+              <button onClick={()=>{
+                selectedPolygons.push(n);
+              }}>
+                сохранить
+              </button>
+              <button
+                data-index={i}
+                className={editing === i ? 'active' : ''}
+                onClick={this.onClick}
+              >редактировать</button>
+            </Popup>
+            </Polygon>
+          )}
+        </Map>
+        {/* <pre>{JSON.stringify(polygons, null, 2)}</pre> */}
+      </div>
+    );
+  }
+}
+
 
 class MapComponent extends React.Component {
   constructor(props) {
@@ -51,36 +198,50 @@ class MapComponent extends React.Component {
   render() {
     var center = [this.state.lat, this.state.lng];
 
-    const basemapsDict =
-      {
-      osm: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      hot: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
-      dark:"https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png",
-      cycle: "https://dev.{s}.tile.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png"
-    }
-
     return (
       <div>
         <Map zoom={this.state.zoom} center={center}>
-          <TileLayer
-            url={basemapsDict[this.state.basemap]}
-          />
-          <Basemap basemap={this.state.basemap} onChange={this.onBMChange}/>
+        <LayersControl>
+            <LayersControl.BaseLayer name="Open Street Map">
+              <TileLayer
+                key={0}
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+            </LayersControl.BaseLayer>
+            <LayersControl.BaseLayer checked name="Google Map">
+              <TileLayer
+                key={1}
+                attribution="Google Maps"
+                url="https://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}"
+              />
+            </LayersControl.BaseLayer>
+            <LayersControl.BaseLayer name="Google Map Satellite">
+              <LayerGroup>
+                <TileLayer
+                  key={2}
+                  attribution="Google Maps Satellite"
+                  url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
+                />
+                {/* <TileLayer url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" /> */}
+              </LayerGroup>
+            </LayersControl.BaseLayer>
+          </LayersControl>
           <FeatureGroup>
             {
-              this.props.data.map((layer) => {
+              this.props.data.map((layer, index) => {
                   return (
                   <FeatureGroup>
-                    <Polygon positions={layer.geometry.coordinates} color={layer.properties.crop_color}>
+                    <Polygon key={index} positions={layer.geometry.coordinates} color={(layer.properties.crop_info === null)?layer.properties.crop_info:layer.properties.crop_info.crop_color}>
                       <Popup>
                         <p>номер реестра: {layer.properties.reestr_number}</p>
-                        <p>с\х культура: {layer.properties.crop_name}</p>
+                        <p>с\х культура: {(layer.properties.crop_info === null)?layer.properties.crop_info:layer.properties.crop_info.crop_name}</p>
                         <p>год: {layer.properties.year_}</p>
                         <p>площадь: {layer.properties.area}</p>
                         <button onClick={()=>{
                           selectedPolygons.push(layer);
                         }}>
-                          добавить
+                          сохранить
                         </button>
                       </Popup>
                     </Polygon>
@@ -96,10 +257,13 @@ class MapComponent extends React.Component {
 };
 
 const area = 'GEOJSON';
-const apiUrl = "http://127.0.0.1:8000/markers/getData";
+const apiUrl = "http://195.133.198.89:8000/api/list-of-fields-main/";
 
 let allYearsSelect = [];
 let allCropsSelect = [];
+let years = [];
+let crops = [null];
+
 
 function App() {
   const { promiseInProgress } = usePromiseTracker({ area });
@@ -114,19 +278,27 @@ function App() {
   const [filtredData, setFiltredData] = useState([]);
 
   const [operationCode, setOperationCode] = useState(0);
+  const [showNavbar, setShowNavbar] = useState(false);
+
+  const [isLogin, setIsLogin] = useState(false);
 
   function makeFiltersData(props) {
     let layers = [];
-    let years = [];
-    let crops = [];
+    // let years = [];
+    // let crops = [null];
+    console.log(props)
     for (var year in props){
       var layers_year = year.substring(year.length-4, year.length);
+      // console.log(layers_year)
       years.push(layers_year);
       for (var layer_index in props[year].features) {
         let layer = props[year].features[layer_index];
         layer.properties['year_'] = layers_year;
-        if (!crops.includes(layer.properties.crop_name)) {
-          crops.push(layer.properties.crop_name)
+        if (layer.properties.crop_info) {
+          if (!crops.includes(layer.properties.crop_info.crop_name)) {
+            crops.push(layer.properties.crop_info.crop_name)
+            // console.log(layer.properties.crop_info.crop_name)
+          }
         }
         layer.geometry.coordinates.forEach((sub_polygons) => {
           sub_polygons.forEach(
@@ -154,22 +326,55 @@ function App() {
       )
     })
 
+    console.log(crops)
+    
     setAllYearsQ(allYearsSelect);
-
     setAllLayers(layers);
     setSelectedYears(years);
     setSelectedCrops(crops);
   }
 
   function filterData() {
-    setFiltredData((selectedYears.length != 0 && selectedCrops.length != 0) ? allLayers.filter(layer => selectedYears.includes(layer.properties.year_) && selectedCrops.includes(layer.properties.crop_name)) : [])
+    setFiltredData((selectedYears.length != 0 && selectedCrops.length != 0) ? allLayers.filter(layer => selectedYears.includes(layer.properties.year_) && selectedCrops.includes((layer.properties.crop_info === null)? layer.properties.crop_info : layer.properties.crop_info.crop_name)) : [])
   };
 
   useEffect(() => {
-    trackPromise(axios.get(apiUrl), area).then(({ data }) => {
-      setMapsData(data);
-      makeFiltersData(data);
+    const years_list = ['2019', '2020', '2021', '2022', '2023', '2024']
+    
+    // let postjson = {'year': 2019, 'first': true, 'id': 1234123}
+    years_list.forEach(year => {
+      trackPromise(axios.get(apiUrl + "?year=" + year), area)
+        .then(({ data }) => {
+          all_years_data[year] = data;
+          makeFiltersData(all_years_data)
+        })
     });
+    console.log(all_years_data)
+    setMapsData(all_years_data)
+    // trackPromise(axios.get(apiUrl + 
+    //   "?year=2019"
+    //   // "?year=2019&first=true"
+    //   // , postjson,
+    //   // {
+    //   // headers: {
+    //   //    'Content-Type': 'application/json'
+    //   //   }
+    //   // }
+    //     ), area)
+    //   .then(({ data }) => {
+    //     setMapsData({"2019": data});
+    //     makeFiltersData({"2019": data});
+    //     console.log(data);})
+    //   // .catch(function (error) {
+    //   //   if (error.response) {
+    //   //     console.log(error.response);
+    //   //   } else if (error.request) {
+    //   //     console.log(error.request);
+    //   //   } else {
+    //   //     console.log('Error', error.message);
+    //   //   }
+    //   //   console.log(error.config);
+    //   // });
   }, [setMapsData]);
 
   function updateSelectedYears(event) {
@@ -217,11 +422,33 @@ function App() {
     return tableData
   }
 
+  function Login () {
+    setIsLogin(isLogin? false : true); console.log(isLogin)
+  }
+{/* <Select 
+              isMulti 
+              options={crops.map((crop)=>{
+                return { label: crop, value: crop }
+                }
+              )} 
+              onChange={updateSelectedCrops}
+            /> */}
   return (
     <div>
       {
         promiseInProgress ? 
         <div>Подождите, данные загружаются!</div> : <div>
+          <nav className="navbar">
+            <div className="container">
+              <div className="logo">
+              </div>
+              <div className={`nav-elements  ${showNavbar && "active"}`}>
+                <ul>
+                  <button onClick={Login}> {isLogin ? "logout" : "login"}</button>
+                </ul>
+              </div>
+            </div>
+          </nav>
           <div className='filterDiv'>
             <h3>Год</h3>
             <Select 
@@ -237,8 +464,9 @@ function App() {
             />
             <button onClick={filterData}>Обновить</button>
           </div>
-
-          <MapComponent data={selectOperationMod()}/>
+          {
+            isLogin? <EditMap data={selectOperationMod()}/> : <MapComponent data={selectOperationMod()}/>
+          }
 
           <div>
             <button onClick={()=>{setOperationCode(1)}}>показать только сохранённые данные</button>
