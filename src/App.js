@@ -284,20 +284,17 @@ function App() {
 
   function makeFiltersData(props) {
     let layers = [];
-    // let years = [];
-    // let crops = [null];
-    console.log(props)
     for (var year in props){
       var layers_year = year.substring(year.length-4, year.length);
-      // console.log(layers_year)
-      years.push(layers_year);
+      if (!years.includes(layers_year)){
+        years.push(layers_year);
+      }
       for (var layer_index in props[year].features) {
         let layer = props[year].features[layer_index];
         layer.properties['year_'] = layers_year;
         if (layer.properties.crop_info) {
           if (!crops.includes(layer.properties.crop_info.crop_name)) {
             crops.push(layer.properties.crop_info.crop_name)
-            // console.log(layer.properties.crop_info.crop_name)
           }
         }
         layer.geometry.coordinates.forEach((sub_polygons) => {
@@ -314,19 +311,6 @@ function App() {
         layers.push(layer)
       }
     }
-    years.map((year)=>{
-      allYearsSelect.push(
-        { label: year, value: year }
-      )
-    })
-
-    crops.map((crop)=>{
-      allCropsSelect.push(
-        { label: crop, value: crop }
-      )
-    })
-
-    console.log(crops)
     
     setAllYearsQ(allYearsSelect);
     setAllLayers(layers);
@@ -349,7 +333,6 @@ function App() {
           makeFiltersData(all_years_data)
         })
     });
-    console.log(all_years_data)
     setMapsData(all_years_data)
     // trackPromise(axios.get(apiUrl + 
     //   "?year=2019"
@@ -363,18 +346,7 @@ function App() {
     //     ), area)
     //   .then(({ data }) => {
     //     setMapsData({"2019": data});
-    //     makeFiltersData({"2019": data});
-    //     console.log(data);})
-    //   // .catch(function (error) {
-    //   //   if (error.response) {
-    //   //     console.log(error.response);
-    //   //   } else if (error.request) {
-    //   //     console.log(error.request);
-    //   //   } else {
-    //   //     console.log('Error', error.message);
-    //   //   }
-    //   //   console.log(error.config);
-    //   // });
+    //     makeFiltersData({"2019": data});})
   }, [setMapsData]);
 
   function updateSelectedYears(event) {
@@ -423,16 +395,19 @@ function App() {
   }
 
   function Login () {
-    setIsLogin(isLogin? false : true); console.log(isLogin)
+    setIsLogin(isLogin? false : true);
   }
-{/* <Select 
-              isMulti 
-              options={crops.map((crop)=>{
-                return { label: crop, value: crop }
-                }
-              )} 
-              onChange={updateSelectedCrops}
-            /> */}
+
+  function makeSelectorData(props) {
+    let selectorData = []
+    props.map((item)=>{
+      selectorData.push(
+        { label: item, value: item }
+      )
+    })
+    return selectorData
+  }
+
   return (
     <div>
       {
@@ -444,84 +419,85 @@ function App() {
               </div>
               <div className={`nav-elements  ${showNavbar && "active"}`}>
                 <ul>
-                  <button onClick={Login}> {isLogin ? "logout" : "login"}</button>
+                  <button onClick={Login}> {isLogin ? "выключить режим редактирования" : "включить режим редактирования"}</button>
                 </ul>
               </div>
             </div>
           </nav>
-          <div className='filterDiv'>
-            <h3>Год</h3>
-            <Select 
-              isMulti 
-              options={allYearsQ} 
-              onChange={updateSelectedYears}
-            />
-            <h3>СХ культура</h3>
-            <Select 
-              isMulti 
-              options={allCropsSelect} 
-              onChange={updateSelectedCrops}
-            />
-            <button onClick={filterData}>Обновить</button>
-          </div>
           {
-            isLogin? <EditMap data={selectOperationMod()}/> : <MapComponent data={selectOperationMod()}/>
-          }
-
-          <div>
-            <button onClick={()=>{setOperationCode(1)}}>показать только сохранённые данные</button>
-            <button onClick={()=>{setOperationCode(0)}}>показать все данные</button>
-            <ToolkitProvider
-              keyField="id"
-              data={ getTableData() }
-              columns={ [{
-                dataField: 'id',
-                text: 'индекс'
-              }, {
-                dataField: 'reestr_number',
-                text: 'номер реестра'
-              }, {
-                dataField: 'year_',
-                text: 'год'
-              }, {
-                dataField: 'crop_name',
-                text: 'с/х культура'
-              }, {
-                dataField: 'area',
-                text: 'Площадь'
-              },
-              {
-                dataField: "remove",
-                text: "Delete",
-                formatter: (cellContent, row) => {
-                  return (
-                    <button
-                      className="btn btn-danger btn-xs"
-                      onClick={() => {
-                        selectedPolygons.pop(row.id)
-                        filterData()
-                      }}
-                    >
-                      Delete
-                    </button>
-                  );
+            isLogin? <div> <h1 style={{ color: 'red' }}>Работает в тестовом режиме!</h1> <EditMap data={selectOperationMod()}/></div> : <div>
+              <div className='filterDiv'>
+                <h3>Год</h3>
+                <Select 
+                  isMulti 
+                  options={makeSelectorData(years)} 
+                  onChange={updateSelectedYears}
+                />
+                <h3>СХ культура</h3>
+                <Select 
+                  isMulti 
+                  options={makeSelectorData(crops)} 
+                  onChange={updateSelectedCrops}
+                />
+                <button onClick={filterData}>Обновить</button>
+              </div>
+              <MapComponent data={selectOperationMod()}/>
+              <div>
+              <button onClick={()=>{setOperationCode(1)}}>показать только сохранённые данные</button>
+              <button onClick={()=>{setOperationCode(0)}}>показать все данные</button>
+              <ToolkitProvider
+                keyField="id"
+                data={ getTableData() }
+                columns={ [{
+                  dataField: 'id',
+                  text: 'индекс'
+                }, {
+                  dataField: 'reestr_number',
+                  text: 'номер реестра'
+                }, {
+                  dataField: 'year_',
+                  text: 'год'
+                }, {
+                  dataField: 'crop_name',
+                  text: 'с/х культура'
+                }, {
+                  dataField: 'area',
+                  text: 'Площадь'
+                },
+                {
+                  dataField: "remove",
+                  text: "Delete",
+                  formatter: (cellContent, row) => {
+                    return (
+                      <button
+                        className="btn btn-danger btn-xs"
+                        onClick={() => {
+                          selectedPolygons.pop(row.id)
+                          filterData()
+                        }}
+                      >
+                        Delete
+                      </button>
+                    );
+                  }
                 }
+              ] 
               }
-            ] 
-            }
-              exportCSV
-            >
-              {
-                props => (
-                  <div>
-                    <ExportCSVButton { ...props.csvProps }>Export CSV</ExportCSVButton>
-                    <hr />
-                    <BootstrapTable { ...props.baseProps } />
-                  </div>
-                )
-              }
-            </ToolkitProvider>
+                exportCSV
+              >
+                {
+                  props => (
+                    <div>
+                      <ExportCSVButton { ...props.csvProps }>Export CSV</ExportCSVButton>
+                      <hr />
+                      <BootstrapTable { ...props.baseProps } />
+                    </div>
+                  )
+                }
+              </ToolkitProvider>
+            </div>
           </div>
+          }
         </div>
       }
     </div>
