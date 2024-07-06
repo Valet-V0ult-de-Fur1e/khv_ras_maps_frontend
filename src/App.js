@@ -257,7 +257,7 @@ class MapComponent extends React.Component {
 };
 
 const area = 'GEOJSON';
-const apiUrl = "http://195.133.198.89:8000/api/list-of-fields-main/";
+const apiUrl = "https://195.133.198.89:8000/api/list-of-fields-main/";
 
 let allYearsSelect = [];
 let allCropsSelect = [];
