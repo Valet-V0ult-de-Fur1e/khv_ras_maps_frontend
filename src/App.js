@@ -4,7 +4,6 @@ import './App.css';
 
 import axios from 'axios';
 
-
 import { trackPromise, usePromiseTracker } from 'react-promise-tracker';
 
 import Select from 'react-select';
@@ -14,12 +13,16 @@ import L from 'leaflet';
 import { Map, TileLayer, FeatureGroup, useLeaflet, Polygon, Marker, Popup, LayerGroup, LayersControl } from "react-leaflet";
 import "leaflet-editable";
 import Basemap from './Basemaps';
-// import { EditControl } from "react-leaflet-draw";
+import { EditControl } from "react-leaflet-draw";
 import './Map.css';
 
 import BootstrapTable from 'react-bootstrap-table-next';
 import ToolkitProvider, { CSVExport } from 'react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit';
 // import { polygon } from 'leaflet';
+// const axios = require("axios").default;
+
+// Bypass SSL certificate verification
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = 0;
 
 const { ExportCSVButton } = CSVExport;
 delete L.Icon.Default.prototype._getIconUrl;
@@ -107,7 +110,7 @@ class EditMap extends React.Component {
   render() {
     const { polygons, editing } = this.state;
     const refs = this.polygonRefs = [];
-
+    const _created = (e) => console.log(e);
     return (
       <div>
           <button
@@ -142,6 +145,21 @@ class EditMap extends React.Component {
               </LayerGroup>
             </LayersControl.BaseLayer>
           </LayersControl>
+          <FeatureGroup>
+                <EditControl
+                  position="topright"
+                  onCreated={_created}
+                  draw={
+                    {
+                      rectangle: false,
+                      circle: false,
+                      circlemarker: false,
+                      marker: false,
+                      polyline: false,
+                    }
+                  }
+                />
+              </FeatureGroup>
           {polygons.map((n, i) =>
             <Polygon
               key={i}
@@ -156,11 +174,11 @@ class EditMap extends React.Component {
               <p>с\х культура: {(n.properties.crop_info === null)? n.properties.crop_color : n.properties.crop_info.crop_name}</p>
               <p>год: {n.properties.year_}</p>
               <p>площадь: {n.properties.area}</p>
-              <button onClick={()=>{
+              {/* <button onClick={()=>{
                 selectedPolygons.push(n);
               }}>
                 сохранить
-              </button>
+              </button> */}
               <button
                 data-index={i}
                 className={editing === i ? 'active' : ''}
@@ -238,11 +256,11 @@ class MapComponent extends React.Component {
                         <p>с\х культура: {(layer.properties.crop_info === null)?layer.properties.crop_info:layer.properties.crop_info.crop_name}</p>
                         <p>год: {layer.properties.year_}</p>
                         <p>площадь: {layer.properties.area}</p>
-                        <button onClick={()=>{
+                        {/* <button onClick={()=>{
                           selectedPolygons.push(layer);
                         }}>
                           сохранить
-                        </button>
+                        </button> */}
                       </Popup>
                     </Polygon>
                   </FeatureGroup>)
@@ -258,7 +276,7 @@ class MapComponent extends React.Component {
 
 const area = 'GEOJSON';
 const apiUrl = "https://195.133.198.89:8000/api/list-of-fields-main/";
-
+// const apiUrl = "http://195.133.198.89:8000/api/list-of-fields-main/";
 let allYearsSelect = [];
 let allCropsSelect = [];
 let years = [];
@@ -319,12 +337,21 @@ function App() {
   }
 
   function filterData() {
-    setFiltredData((selectedYears.length != 0 && selectedCrops.length != 0) ? allLayers.filter(layer => selectedYears.includes(layer.properties.year_) && selectedCrops.includes((layer.properties.crop_info === null)? layer.properties.crop_info : layer.properties.crop_info.crop_name)) : [])
+    if (selectedYears.length != 0) {
+      if (selectedCrops.length != 0) {
+        setFiltredData(allLayers.filter(layer => selectedYears.includes(layer.properties.year_) && selectedCrops.includes((layer.properties.crop_info === null)? layer.properties.crop_info : layer.properties.crop_info.crop_name)))
+      }
+      else {
+        setFiltredData(allLayers.filter(layer => selectedYears.includes(layer.properties.year_)))
+      }
+    }
+    else {
+      setFiltredData([]);
+    }
   };
 
   useEffect(() => {
     const years_list = ['2019', '2020', '2021', '2022', '2023', '2024']
-    
     // let postjson = {'year': 2019, 'first': true, 'id': 1234123}
     years_list.forEach(year => {
       trackPromise(axios.get(apiUrl + "?year=" + year), area)
@@ -430,7 +457,7 @@ function App() {
                 <h3>Год</h3>
                 <Select 
                   isMulti 
-                  options={makeSelectorData(years)} 
+                  options={makeSelectorData(years.sort())} 
                   onChange={updateSelectedYears}
                 />
                 <h3>СХ культура</h3>
@@ -442,8 +469,8 @@ function App() {
                 <button onClick={filterData}>Обновить</button>
               </div>
               <MapComponent data={selectOperationMod()}/>
-              <div>
-              <button onClick={()=>{setOperationCode(1)}}>показать только сохранённые данные</button>
+              {/* <div>
+              <button onClick={()=>{setOperationCode(1)}}>показать поля пользователя</button>
               <button onClick={()=>{setOperationCode(0)}}>показать все данные</button>
               <ToolkitProvider
                 keyField="id"
@@ -467,7 +494,7 @@ function App() {
                 {
                   dataField: "remove",
                   text: "Delete",
-                  formatter: (cellContent, row) => {
+                  formatter: (cellContent , row) => {
                     return (
                       <button
                         className="btn btn-danger btn-xs"
@@ -495,7 +522,7 @@ function App() {
                   )
                 }
               </ToolkitProvider>
-            </div>
+            </div> */}
           </div>
           }
         </div>
