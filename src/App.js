@@ -342,6 +342,7 @@ function App() {
         setFiltredData(allLayers.filter(layer => selectedYears.includes(layer.properties.year_) && selectedCrops.includes((layer.properties.crop_info === null)? layer.properties.crop_info : layer.properties.crop_info.crop_name)))
       }
       else {
+        console.log(allLayers.filter(layer => selectedYears.includes(layer.properties.year_)))
         setFiltredData(allLayers.filter(layer => selectedYears.includes(layer.properties.year_)))
       }
     }
