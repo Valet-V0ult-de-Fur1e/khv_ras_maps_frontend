@@ -1,0 +1,330 @@
+/* * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-size: 12pt;
+} */
+
+/* html, body {
+    height: 100%;
+    font-family: Arial, sans-serif;
+} */
+
+/* body {
+    display: flex;
+    overflow-y: hidden;
+} */
+
+p {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+img.icon-svg {
+    width: 2em;
+
+}
+
+.classic-btn {
+    background-color: #ececec;
+    padding: 10px;
+    border-radius: 10px;
+}
+.classic-btn:hover {
+    background-color: #e5e4e4;
+}
+
+/* ---- ШАПКА ------- */
+
+header {
+    height: 40px;
+    background-color: #e6dbdb5c;
+    display: flex;
+    align-items: center;
+}
+
+.top-navbar {
+    display: flex;
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    height: 100%;
+    padding: 0 6px;
+}
+
+.tab-btn {
+    background-color: #e5e5e5;
+    border: none;
+    border-radius: 10px 10px 0 0;
+    padding: 10px 20px;
+    margin-right: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.tab-btn.active {
+    background-color: #7dc3ee;
+}
+
+.tab-btn span {
+    margin-right: 10px;
+}
+
+.tab-btn .btn-close {
+    background: none;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+}
+.map-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.Select-input {  
+    position: absolute !important; 
+    width: calc('100% - 0px');
+  }
+  
+  .Select-value-label {
+    display: none !important;
+  }
+  
+  .Select-value {
+    position: relative !important;
+  }
+  
+  .Select-menu-outer {
+    width: auto;
+    min-width: 100%;
+    text-align: left;
+  }
+  
+  .Select-option {
+    white-space: nowrap;
+  }
+  
+  .Select-control {
+    min-width: 100%;
+    width: auto;
+    text-align: left;
+  }
+
+.sidebar {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    width: 360px;
+    display: inline-block;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #f9f9f9;
+}
+
+.sidebar__initial-section > *{
+    margin-bottom: 10px;
+}
+
+.sidebar__main-info {
+    display: flex;
+    flex-grow: 1;
+    width: 100%;
+    align-items:start;
+}
+
+.sidebar__main-info p {
+    margin: 0;
+}
+
+.sidebar__user-data {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    border-radius: 5px;
+    padding: 0.2em;
+    /* box-shadow: 0 0 4px 2px rgba(0, 0, 0, 0.146); */
+}
+
+.sidebar__user-data__status {
+    padding-right: 0.2em;
+    padding-left: 0.1em;
+    display: flex;
+    flex-direction: column;
+}
+
+.icon-profile {
+    height: 3.5em;
+}
+
+.sidebar__bnt-exit {
+    display: flex;
+    align-items: center;
+    border: none;
+    border-radius: 10px;
+    height: 100%;
+    padding: 3px;
+    cursor: pointer;
+}
+
+.sidebar__bnt-exit:hover {
+    background-color: #e86a6abd;
+}
+.sidebar hr {
+    margin-bottom: 2em;
+}
+
+
+.sidebar__operations {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+}
+
+.styled-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.styled-btn .circle {
+    width: 60px;
+    height: 60px;
+    background-color: #ececec;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5em;
+    transition: background-color 0.3s;
+}
+
+.styled-btn .circle img.icon-svg:not(:first) {
+    width: 30px;
+    height: 30px;
+}
+
+.styled-btn span {
+    font-size: 12pt;
+    color: #333;
+}
+
+.styled-btn:hover .circle {
+    background-color: #dcdcdc;
+}
+@media (max-width: 1240px) {
+
+    .sidebar__operations {
+        flex-direction: column;
+    }
+
+    .styled-btn {
+        flex-basis: 100%;
+        margin-right: 0;
+    }
+}
+
+.sidebar__btn-back {
+    display: flex;
+    align-items: center;
+    border: none;
+    border-radius: 10px;
+    height: 100%;
+    padding: 3px;
+    cursor: pointer;
+    margin-right: 0.5em;
+}
+
+.sidebar__btn-back:hover {
+    background-color: #ececec;
+}
+
+.sidebar__settings-block p {
+    margin: 3px;
+}
+
+.sidebar__top-section {
+    display: flex;
+    align-items: center;
+    margin-right: auto;
+    margin-top: auto;
+    border-radius: 5px;
+    padding: 0.2em;
+}
+
+.sidebar__top-section p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    font-size: 14pt;
+}
+
+/* Цветные круги для разных кнопок */
+
+.btn-export .circle {
+    background-color: #ffd97d;
+    align-items: center;
+    padding-bottom: 2px;
+}
+
+.settings-circle img {
+    width: 43px;
+    height: 43px;
+}
+
+.btn-import .circle {
+    background-color: #60d394;
+    align-items: center;
+    padding-bottom: 2px;
+}
+
+.btn-settings .circle {
+    padding-top: 2px;
+    background-color: #ee6055;
+}
+
+/* фильтры */
+.sidebar__settings > *{
+    margin-bottom: 1.5em;
+}
+
+/* операции с полигоном */
+.sidebar__poligon-operations > *{
+    margin-bottom: 1.5em;
+}
+
+/* выбор полигонов */
+.sidebar__selecting-polygons > *{
+    margin-bottom: 1.5em;
+}
+
+/* редактирование поля */
+.sidebar__editing-field > *{
+    margin-bottom: 1.5em;
+}
+
+.btn-save-field-data:hover, .btn-confirmation-polygon-selection:hover {
+    background-color: #c5f1c7;
+}
+
+.btn-cancel-field-data:hover, .btn-cancel-polygon-selection:hover {
+    background-color: #fea5a5;
+}
