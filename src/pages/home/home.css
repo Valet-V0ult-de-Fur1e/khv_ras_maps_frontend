@@ -90,35 +90,6 @@ header {
     flex-direction: column;
 }
 
-.Select-input {  
-    position: absolute !important; 
-    width: calc('100% - 0px');
-  }
-  
-  .Select-value-label {
-    display: none !important;
-  }
-  
-  .Select-value {
-    position: relative !important;
-  }
-  
-  .Select-menu-outer {
-    width: auto;
-    min-width: 100%;
-    text-align: left;
-  }
-  
-  .Select-option {
-    white-space: nowrap;
-  }
-  
-  .Select-control {
-    min-width: 100%;
-    width: auto;
-    text-align: left;
-  }
-
 .sidebar {
     height: 100%;
     margin: 0;
