@@ -9,6 +9,7 @@ const Login = () => {
     const [userLogin, setUserLogin] = useState("");
     const [userPassword, setUserPassword] = useState("");
 
+    const [authKey, setAuthKey] = useLocalStorage("auth_key", "");
     const [rememberUserFlag, setRememberUserFlag] = useLocalStorage("user_is_remembered_flag", false);
     const [userIsLoginedFlag, setUserIsLoginedFlag] = useLocalStorage("user_is_logined", false);
     const [loginedUserName, setLoginedUserName] = useLocalStorage("user_login", "");
@@ -25,6 +26,8 @@ const Login = () => {
                     setLoginedUserName(userLogin);
                 }
                 setUserIsLoginedFlag(true);
+                console.log(response.data.data.key)
+                setAuthKey(response.data.data.key);
                 navigate('/');
             })
             .catch((error) => {

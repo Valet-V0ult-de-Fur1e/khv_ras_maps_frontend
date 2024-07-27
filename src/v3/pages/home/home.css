@@ -1,20 +1,3 @@
-/* * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-size: 12pt;
-} */
-
-/* html, body {
-    height: 100%;
-    font-family: Arial, sans-serif;
-} */
-
-/* body {
-    display: flex;
-    overflow-y: hidden;
-} */
-
 p {
     word-wrap: break-word;
     word-break: break-all;
@@ -37,15 +20,6 @@ img.icon-svg {
 }
 .classic-btn:hover {
     background-color: #e5e4e4;
-}
-
-/* ---- ШАПКА ------- */
-
-header {
-    height: 40px;
-    background-color: #e6dbdb5c;
-    display: flex;
-    align-items: center;
 }
 
 .top-navbar {

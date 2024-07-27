@@ -5,36 +5,36 @@ import getServerAPIURL from "../../elements/serverAPI.js"
 import axios from 'axios';
 import "leaflet-editable";
 import Select from 'react-select';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import AdminMap from '../../components/AdminMap/AdminMap.js';
 import "./home.css";
 
-// axios.defaults.withCredentials = true
-
-function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
-  if (dataArray.length === 0) {
-    axios.get(getServerAPIURL() + apiPath).
-      then((response) => {
-        setDataArrayFunc(response.data.data);
-      }).
-      catch((error) => {
-        alert("Ошибка сервера")
-      })
-  }
-}
 
 const Home = () => {
   const [listOfYears, setListOfYears] = useState([]);
   const [listOfCrops, setListOfCrops] = useState([]);
   const [selectedYears, setSelectedYears] = useState([]);
   const [selectedCrops, setSelectedCrops] = useState([]);
-  
+
   const [filtredData, setFiltredData] = useState({});
   const [allLayersData, setAllLayersData] = useState({});
 
+  const [authKey, setAuthKey] = useLocalStorage("auth_key", "");
   const [userIsLoginedFlag, setUserIsLoginedFlag] = useLocalStorage("user_is_logined", false);
   const [loginedUserName, setLoginedUserName] = useLocalStorage("user_login", "");
 
   const navigate = useNavigate();
+
+  function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
+    if (dataArray.length === 0) {
+      axios.get(getServerAPIURL() + apiPath).
+        then((response) => {
+          setDataArrayFunc(response.data.data);
+        }).
+        catch((error) => {
+          alert("Ошибка сервера")
+        })
+    }
+  }
 
   function getSelectorListOfYears() {
     let selectorData = []
@@ -71,14 +71,16 @@ const Home = () => {
   function logout() {
     axios.post(getServerAPIURL() + "/api/auth/logout/")
     setUserIsLoginedFlag(false)
-    console.log("logout");
   }
 
   function loadYearData(year) {
     let updatedYearData = allLayersData;
-    axios.get(getServerAPIURL() + "/api/list-of-fields-main/?year=" + year, { withCredentials: true , "Access-Control-Allow-Credentials": "иди в жопу со своей безопасностью"})
+    const headers = {
+      'Content-Type': 'application/json',
+      "X-CSRFToken": authKey,
+    };
+    axios.get(getServerAPIURL() + "/api/list-of-fields-main/?year=" + year, {headers})
       .then((response) => {
-        console.log(response.data.data)
         updatedYearData[year] = response.data.data;
       })
       .catch((error) => {
@@ -96,7 +98,6 @@ const Home = () => {
     let newFiltredData = {};
     selectedYears.map(
       (selectedYear) => {
-        console.log(newFiltredData[selectedYear])
         newFiltredData[selectedYear] = filterDataByCrops(
           (allLayersData[selectedYear].length === 0) ?
             loadYearData(selectedYear) :
@@ -146,6 +147,7 @@ const Home = () => {
 
   return (
     <div>
+      <AdminMap data={filtredData}/>
       <nav className='sidebar'>
         <div className="sidebar__main-info">
           <div className="sidebar__user-data">
@@ -219,7 +221,6 @@ const Home = () => {
         </div>
         <button className="classic-btn sidebar__btn-filter" onClick={filterData}>Показать</button>
       </nav>
-      home
     </div>
   )
 }

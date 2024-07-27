@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 import L from 'leaflet';
+import { Map, TileLayer, FeatureGroup, useLeaflet, Polygon, Marker, Popup, LayerGroup, LayersControl } from "react-leaflet";
+import "leaflet-editable";
+import { EditControl } from "react-leaflet-draw";
+
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -12,7 +16,7 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-shadow.png",
 });
 
-class EditMap extends React.Component {
+class AdminMap extends React.Component {
   state = {
     mapOptions: {
       center: [48.5189, 135.2786],
@@ -89,10 +93,10 @@ class EditMap extends React.Component {
     const _created = (e) => console.log(e);
     return (
       <div>
-        <button
+        {/* <button
           className={editing !== null ? 'active' : ''}
           onClick={this.onClick1}
-        >сохранить</button>
+        >сохранить</button> */}
         <Map
           {...this.state.mapOptions}
           ref={this.mapRef}
@@ -136,7 +140,7 @@ class EditMap extends React.Component {
               }
             />
           </FeatureGroup>
-          {polygons.map((n, i) =>
+          {/* {polygons.map((n, i) =>
             <Polygon
               key={i}
               positions={n.geometry.coordinates[0]}
@@ -159,9 +163,11 @@ class EditMap extends React.Component {
                 </button>
               </Popup>
             </Polygon>
-          )}
+          )} */}
         </Map>
       </div>
     );
   }
 }
+
+export default AdminMap
