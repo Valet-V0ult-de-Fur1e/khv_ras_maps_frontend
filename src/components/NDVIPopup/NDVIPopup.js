@@ -25,7 +25,8 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
       <div className="modal__content" onClick={e => e.stopPropagation()}>
-        <Map
+        {
+          selectedPolygonData? <Map
           {...{
             center: [48.5189, 135.2786],
             zoom: 13,
@@ -76,7 +77,8 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
                 />
             )
           }
-        </Map>
+        </Map> : <></>
+        }
       </div>
     </div>
   );
