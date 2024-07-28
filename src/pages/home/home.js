@@ -10,7 +10,7 @@ import "./home.css";
 import './Map.css';
 
 import { Map, TileLayer, FeatureGroup, Polygon, Popup, LayerGroup, LayersControl } from "react-leaflet";
-import { Sidebar, Tab } from 'react-leaflet-sidebarv2';
+import { Sidebar, Tab } from '../../elements/sidebar.js';
 import { EditControl } from "react-leaflet-draw";
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
