@@ -1,32 +1,22 @@
-import React, { useState, useEffect } from 'react';
-
-import L from 'leaflet';
-import { Map, TileLayer, FeatureGroup, useLeaflet, Polygon, Marker, Popup, LayerGroup, LayersControl } from "react-leaflet";
+import React, { useState } from 'react';
+import { Map, TileLayer, FeatureGroup, Polygon, Popup, LayerGroup, LayersControl } from "react-leaflet";
 import "leaflet-editable";
 import { EditControl } from "react-leaflet-draw";
+import NDVIPopup from '../NDVIPopup/NDVIPopup';
+import { useLocalStorage } from "../../elements/useLocalStorage.js"
 
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-icon.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-shadow.png",
-});
-
-class AdminMap extends React.Component {
+class EditedMap extends React.Component {
   state = {
     mapOptions: {
       center: [48.5189, 135.2786],
-      zoom: 13,
+      zoom: 11,
       editable: true,
     },
     editing: null,
     polygons: this.props.data,
-    basemap: 'osm'
+    basemap: 'osm',
   }
+
   onBMChange = (bm) => {
     this.setState({
       basemap: bm
@@ -37,7 +27,6 @@ class AdminMap extends React.Component {
   polygonRefs = []
 
   onClick = e => {
-    console.log(e)
     const index = +e.target.dataset.index;
     const refs = this.polygonRefs;
 
@@ -88,15 +77,12 @@ class AdminMap extends React.Component {
   }
 
   render() {
-    const { polygons, editing } = this.state;
+    const polygons = this.props.data;
+    const editing = this.state.editing;
     const refs = this.polygonRefs = [];
     const _created = (e) => console.log(e);
     return (
       <div>
-        {/* <button
-          className={editing !== null ? 'active' : ''}
-          onClick={this.onClick1}
-        >сохранить</button> */}
         <Map
           {...this.state.mapOptions}
           ref={this.mapRef}
@@ -140,7 +126,7 @@ class AdminMap extends React.Component {
               }
             />
           </FeatureGroup>
-          {/* {polygons.map((n, i) =>
+          {polygons.map((n, i) =>
             <Polygon
               key={i}
               positions={n.geometry.coordinates[0]}
@@ -158,16 +144,28 @@ class AdminMap extends React.Component {
                   data-index={i}
                   className={editing === i ? 'active' : ''}
                   onClick={this.onClick}
-                >
-                  редактировать
+                >редактировать</button>
+                <button onClick={(e)=> {this.props.NDVIAPI(true); this.props.selecterApi(n); console.log(n)}}>
+                  NDVI
                 </button>
               </Popup>
             </Polygon>
-          )} */}
+          )}
         </Map>
       </div>
     );
   }
+}
+
+const AdminMap = (props) => {
+  const [NDVIWinIsActivae, setNDVIWinIsActivae] = useLocalStorage("modalIsActive", false);
+  const [selectedNDVIPolygon, setSelectedNDVIPolygon] = useLocalStorage("selectedPolygon", undefined);
+  return (
+    <div>
+      <EditedMap data={props.data} NDVIAPI={setNDVIWinIsActivae} selecterApi={setSelectedNDVIPolygon}/>
+      <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} selectedPolygonData={selectedNDVIPolygon}/>
+    </div>
+  )
 }
 
 export default AdminMap

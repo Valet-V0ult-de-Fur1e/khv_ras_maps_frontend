@@ -5,13 +5,13 @@ import getServerAPIURL from "../../elements/serverAPI.js"
 import axios from 'axios';
 import "leaflet-editable";
 import Select from 'react-select';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./home.css";
 import './Map.css';
 
-import { Map, TileLayer, FeatureGroup, Polygon, Popup, LayerGroup, LayersControl } from "react-leaflet";
 import { Sidebar, Tab } from '../../elements/sidebar.js';
-import { EditControl } from "react-leaflet-draw";
+import AdminMap from '../../components/AdminMap/AdminMap.js';
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   if (dataArray.length === 0) {
@@ -38,154 +38,6 @@ function getCookie(name) {
     }
   }
   return cookieValue;
-}
-
-class EditMap extends React.Component {
-  state = {
-    mapOptions: {
-      center: [48.5189, 135.2786],
-      zoom: 11,
-      editable: true,
-    },
-    editing: null,
-    polygons: this.props.data,
-    basemap: 'osm'
-  }
-  onBMChange = (bm) => {
-    this.setState({
-      basemap: bm
-    });
-  }
-
-  mapRef = React.createRef()
-  polygonRefs = []
-
-  onClick = e => {
-    const index = +e.target.dataset.index;
-    const refs = this.polygonRefs;
-
-    this.setState(({ editing }) => {
-      refs.forEach((n, i) => {
-        const method = i === index && editing !== index
-          ? 'enableEdit'
-          : 'disableEdit';
-        n.leafletElement[method]();
-      });
-      return {
-        editing: editing === index ? null : index,
-      };
-    });
-  }
-
-  onClick1 = e => {
-    const refs = this.polygonRefs;
-
-    this.setState(({ editing }) => {
-      refs.forEach((n, i) => {
-        n.leafletElement['disableEdit']();
-      });
-
-      return {
-        editing: null,
-      };
-    });
-  }
-
-  onLoad = e => {
-    e.target.on('editable:disable', this.onEditEnd);
-  }
-
-  onEditEnd = ({ layer }) => {
-
-    function updatePolygon(polygon, newCoords) {
-      let newDataPolygon = polygon
-      newDataPolygon.geometry.coordinates = [newCoords._latlngs]
-      return newDataPolygon
-    }
-
-    this.setState(({ polygons }) => ({
-      polygons: polygons.map((n, i) => i === layer.options.index ?
-        updatePolygon(n, layer) : n
-      ),
-    }));
-  }
-
-  render() {
-    const polygons = this.props.data;
-    const editing = this.state.editing;
-    const refs = this.polygonRefs = [];
-    const _created = (e) => console.log(e);
-    return (
-      <div>
-        <Map
-          {...this.state.mapOptions}
-          ref={this.mapRef}
-          whenReady={this.onLoad}
-        >
-          <LayersControl>
-            <LayersControl.BaseLayer name="Open Street Map">
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-            </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer checked name="Google Map">
-              <TileLayer
-                attribution="Google Maps"
-                url="https://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}"
-              />
-            </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer name="Google Map Satellite">
-              <LayerGroup>
-                <TileLayer
-                  attribution="Google Maps Satellite"
-                  url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
-                />
-                <TileLayer url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
-              </LayerGroup>
-            </LayersControl.BaseLayer>
-          </LayersControl>
-          <FeatureGroup>
-            <EditControl
-              position="topright"
-              onCreated={_created}
-              draw={
-                {
-                  rectangle: false,
-                  circle: false,
-                  circlemarker: false,
-                  marker: false,
-                  polyline: false,
-                }
-              }
-            />
-          </FeatureGroup>
-          {polygons.map((n, i) =>
-            <Polygon
-              key={i}
-              positions={n.geometry.coordinates[0]}
-              ref={ref => refs[i] = ref}
-              onEditabl_edisable={this.onEditEnd}
-              index={i}
-              color={(n.properties.crop_info === null) ? n.properties.crop_color : n.properties.crop_info.crop_color}
-            >
-              <Popup>
-                <p>номер реестра: {n.properties.reestr_number}</p>
-                <p>с\х культура: {(n.properties.crop_info === null) ? n.properties.crop_color : n.properties.crop_info.crop_name}</p>
-                <p>год: {n.properties.year_}</p>
-                <p>площадь: {n.properties.area}</p>
-                <button
-                  data-index={i}
-                  className={editing === i ? 'active' : ''}
-                  onClick={this.onClick}
-                >редактировать</button>
-              </Popup>
-            </Polygon>
-          )}
-        </Map>
-      </div>
-    );
-  }
 }
 
 
@@ -291,19 +143,6 @@ const Home = () => {
 
   function filterDataByCrops(data) {
     return selectedCrops.length !== 0 ? data.filter(layer => selectedCrops.includes((layer.properties.crop_info === null) ? layer.properties.crop_info : layer.properties.crop_info.crop_name)) : data
-  }
-
-  function getReversedGeometry(geometryData) {
-    geometryData.forEach(
-      (subPolygon) => {
-        subPolygon.forEach(
-          (pointCoord) => {
-            pointCoord.reverse()
-          }
-        )
-      }
-    )
-    return geometryData;
   }
 
   function filterData() {
@@ -419,14 +258,16 @@ const Home = () => {
             />
           </div>
           <button className="classic-btn sidebar__btn-filter" onClick={filterData}>Показать</button>
+            
           <button onClick={exportShapeFile}>export</button>
+            
           <button onClick={importShapeFile}>import</button>
         </Tab>
         <Tab id="settings" header="Settings" icon="fa fa-cog" anchor="bottom">
           <p>Settings dialogue.</p>
         </Tab>
       </Sidebar>
-      <EditMap className="sidebar-map" data={getDataToRender()} />
+      <AdminMap className="sidebar-map" data={getDataToRender()} />
     </div>
   )
 }
