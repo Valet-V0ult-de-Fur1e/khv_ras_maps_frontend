@@ -12,7 +12,6 @@ import './Map.css';
 import { Map, TileLayer, FeatureGroup, Polygon, Popup, LayerGroup, LayersControl } from "react-leaflet";
 import { Sidebar, Tab } from 'react-leaflet-sidebarv2';
 import { EditControl } from "react-leaflet-draw";
-import { polygon } from 'leaflet';
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   if (dataArray.length === 0) {
