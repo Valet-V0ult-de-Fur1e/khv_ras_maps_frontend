@@ -159,11 +159,13 @@ class EditedMap extends React.Component {
 
 const AdminMap = (props) => {
   const [NDVIWinIsActivae, setNDVIWinIsActivae] = useLocalStorage("modalIsActive", false);
-  const [selectedNDVIPolygon, setSelectedNDVIPolygon] = useLocalStorage("selectedPolygon", undefined);
+  const [selectedNDVIPolygon, setSelectedNDVIPolygon] = useLocalStorage("selectedPolygon", {});
   return (
     <div>
       <EditedMap data={props.data} NDVIAPI={setNDVIWinIsActivae} selecterApi={setSelectedNDVIPolygon}/>
-      <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} selectedPolygonData={selectedNDVIPolygon}/>
+      {
+        selectedNDVIPolygon.id? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} selectedPolygonData={selectedNDVIPolygon}/> : <></>
+      }
     </div>
   )
 }

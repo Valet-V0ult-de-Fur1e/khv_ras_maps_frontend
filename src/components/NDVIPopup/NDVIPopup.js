@@ -6,27 +6,40 @@ import { Map, TileLayer, Polygon, LayerGroup, LayersControl, Circle, Popup } fro
 
 
 const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
-  console.log(selectedPolygonData)
 
-  const [NDVIpoints, setNDVIpoints] = useState([]);
-
-  useEffect(
-    () => {
-      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
+  function getData(){
+    axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
         .then((res) => {
           setNDVIpoints(res.data.features);
+          return res.data.features
         })
         .catch((error) => {
           console.log(error)
         })
-    }, []
+    return []
+  }
+
+  const [NDVIpoints, setNDVIpoints] = useState(getData());
+  
+  useEffect(
+    () => {
+      console.log(1)
+      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
+        .then((res) => {
+          console.log(2)
+          setNDVIpoints(res.data.features);
+          console.log(res.data.features)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }, [setNDVIpoints]
   )
 
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
       <div className="modal__content" onClick={e => e.stopPropagation()}>
-        {
-          selectedPolygonData? <Map
+        <Map
           {...{
             center: [48.5189, 135.2786],
             zoom: 13,
@@ -57,17 +70,6 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
               </LayerGroup>
             </LayersControl.BaseLayer>
           </LayersControl>
-          <Polygon
-              positions={selectedPolygonData.geometry.coordinates[0]}
-              color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
-            >
-              <Popup>
-                <p>номер реестра: {selectedPolygonData.properties.reestr_number}</p>
-                <p>с\х культура: {(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_name}</p>
-                <p>год: {selectedPolygonData.properties.year_}</p>
-                <p>площадь: {selectedPolygonData.properties.area}</p>
-              </Popup>
-            </Polygon>
           {
             NDVIpoints.map(
               (point) =>
@@ -77,8 +79,18 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
                 />
             )
           }
-        </Map> : <></>
-        }
+          <Polygon
+            positions={selectedPolygonData.geometry.coordinates[0]}
+            color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
+          >
+            <Popup>
+              <p>номер реестра: {selectedPolygonData.properties.reestr_number}</p>
+              <p>с\х культура: {(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_name}</p>
+              <p>год: {selectedPolygonData.properties.year_}</p>
+              <p>площадь: {selectedPolygonData.properties.area}</p>
+            </Popup>
+          </Polygon>
+        </Map>
       </div>
     </div>
   );
