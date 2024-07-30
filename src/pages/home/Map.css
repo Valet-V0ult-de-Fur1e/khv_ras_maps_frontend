@@ -144,7 +144,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  background-color: rgba(255, 255, 255, .95);
+  background-color: rgb(255, 255, 255);
   overflow-x: hidden;
   overflow-y: auto
 }
@@ -182,7 +182,7 @@
   line-height: 40px;
   font-size: 14.4pt;
   color: #fff;
-  background-color: #434343
+  background-color: #434343;
 }
 
 .sidebar-right .sidebar-header {
