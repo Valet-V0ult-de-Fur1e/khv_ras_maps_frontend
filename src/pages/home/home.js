@@ -112,30 +112,6 @@ const Home = () => {
     setUserIsLoginedFlag(false)
   }
 
-  function makeLeafletCoords(data) {
-    let complitedData = data
-    complitedData.map(
-      (polygon) => {
-        polygon.geometry.coordinates.forEach((sub_polygons) => {
-          sub_polygons.forEach(
-            (polygon_coords_arr) => {
-              let reversedPoints = []
-              polygon_coords_arr.map(
-                (polygon_coords) => {
-                  polygon_coords.reverse()
-                  reversedPoints.push(polygon_coords)
-                }
-              )
-              polygon_coords_arr = reversedPoints;
-            }
-          )
-        }
-        )
-      }
-    )
-    return complitedData
-  }
-
   function loadYearData(year) {
     if (year != 2025) {
       let updatedYearData = allLayersData;
@@ -275,7 +251,7 @@ const Home = () => {
             <button onClick={exportShapeFile} className="styled-btn btn-export">
               <div className="circle">
                 <svg width="32px" height="32px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                  <path fill="#000000" fill-rule="evenodd" d="M14,9.00421 C14.5523,9.00421 15,9.45192 15,10.00418 L15,13.00418 C15,14.10878 14.1046,15.00418 13,15.00418 L3,15.00418 C1.89543,15.00418 1,14.10878 1,13.00418 L1,10.00418 C1,9.45192 1.44772,9.00421 2,9.00421 C2.55228,9.00421 3,9.45192 3,10.00418 L3,13.00418 L13,13.00418 L13,10.00418 C13,9.45192 13.4477,9.00421 14,9.00421 Z M8,1.59 L11.7071,5.2971 C12.0976,5.68763 12.0976,6.32079 11.7071,6.71132 C11.3166,7.10184 10.6834,7.10184 10.2929,6.71132 L9,5.41842 L9,10.00418 C9,10.55648 8.55228,11.00418 8,11.00418 C7.44772,11.00418 7,10.55648 7,10.00418 L7,5.41842 L5.70711,6.71132 C5.31658,7.10184 4.68342,7.10184 4.29289,6.71132 C3.90237,6.32079 3.90237,5.68763 4.29289,5.2971 L8,1.59 Z" />
+                  <path fill="#000000" fillRule="evenodd" d="M14,9.00421 C14.5523,9.00421 15,9.45192 15,10.00418 L15,13.00418 C15,14.10878 14.1046,15.00418 13,15.00418 L3,15.00418 C1.89543,15.00418 1,14.10878 1,13.00418 L1,10.00418 C1,9.45192 1.44772,9.00421 2,9.00421 C2.55228,9.00421 3,9.45192 3,10.00418 L3,13.00418 L13,13.00418 L13,10.00418 C13,9.45192 13.4477,9.00421 14,9.00421 Z M8,1.59 L11.7071,5.2971 C12.0976,5.68763 12.0976,6.32079 11.7071,6.71132 C11.3166,7.10184 10.6834,7.10184 10.2929,6.71132 L9,5.41842 L9,10.00418 C9,10.55648 8.55228,11.00418 8,11.00418 C7.44772,11.00418 7,10.55648 7,10.00418 L7,5.41842 L5.70711,6.71132 C5.31658,7.10184 4.68342,7.10184 4.29289,6.71132 C3.90237,6.32079 3.90237,5.68763 4.29289,5.2971 L8,1.59 Z" />
                 </svg>
               </div>
               <span>Export</span>
@@ -284,7 +260,7 @@ const Home = () => {
             <button type="file" onClick={()=>fileInputRef.current.click()} className="styled-btn btn-import">
               <div className="circle">
                 <svg width="32px" height="32px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-                  <path fill="#000000" fill-rule="evenodd" d="M14,9 C14.5523,9 15,9.44772 15,10 L15,13 C15,14.1046 14.1046,15 13,15 L3,15 C1.89543,15 1,14.1046 1,13 L1,10 C1,9.44772 1.44772,9 2,9 C2.55228,9 3,9.44771 3,10 L3,13 L13,13 L13,10 C13,9.44771 13.4477,9 14,9 Z M8,1 C8.55228,1 9,1.44772 9,2 L9,6.58579 L10.2929,5.29289 C10.6834,4.90237 11.3166,4.90237 11.7071,5.29289 C12.0976,5.68342 12.0976,6.31658 11.7071,6.70711 L8,10.4142 L4.29289,6.70711 C3.90237,6.31658 3.90237,5.68342 4.29289,5.29289 C4.68342,4.90237 5.31658,4.90237 5.70711,5.29289 L7,6.58579 L7,2 C7,1.44772 7.44772,1 8,1 Z" />
+                  <path fill="#000000" fillRule="evenodd" d="M14,9 C14.5523,9 15,9.44772 15,10 L15,13 C15,14.1046 14.1046,15 13,15 L3,15 C1.89543,15 1,14.1046 1,13 L1,10 C1,9.44772 1.44772,9 2,9 C2.55228,9 3,9.44771 3,10 L3,13 L13,13 L13,10 C13,9.44771 13.4477,9 14,9 Z M8,1 C8.55228,1 9,1.44772 9,2 L9,6.58579 L10.2929,5.29289 C10.6834,4.90237 11.3166,4.90237 11.7071,5.29289 C12.0976,5.68342 12.0976,6.31658 11.7071,6.70711 L8,10.4142 L4.29289,6.70711 C3.90237,6.31658 3.90237,5.68342 4.29289,5.29289 C4.68342,4.90237 5.31658,4.90237 5.70711,5.29289 L7,6.58579 L7,2 C7,1.44772 7.44772,1 8,1 Z" />
                 </svg>
                 <input onChange={importShapeFile} multiple={false} ref={fileInputRef} type='file'hidden/>
               </div>
@@ -319,7 +295,7 @@ const Home = () => {
           </div>
         </SidebarTab>
         <SidebarTab id="settings" header="Settings" icon="fa fa-cog" anchor="bottom">
-          <p><input type="checkbox" checked={showShapeDataFlag} name="myCheckbox" onClick={()=>{setShowShapeDataFlag(!showShapeDataFlag); console.log(showShapeDataFlag)}}/> Отобразить загруженный файл</p>
+          <p><input type="checkbox" defaultChecked={showShapeDataFlag} name="myCheckbox" onClick={()=>{setShowShapeDataFlag(!showShapeDataFlag); console.log(showShapeDataFlag)}}/> Отобразить загруженный файл</p>
         </SidebarTab>
       </Sidebar>
       <AdminMap className="sidebar-map" data={getDataToRender()} shapeData={shapeData} showShapeDataFlag={showShapeDataFlag}/>

@@ -36,11 +36,10 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
   }
 
   function getData() {
-    // console.log(selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id))
+    console.log(selectedPolygonData)
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
       axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
         .then((res) => {
-          // console.log(res.data.features)
           setLineData({
             labels: getLabelsG(),
             datasets: [
@@ -53,6 +52,7 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
               }
             ]
           })
+          // console.log(res.data.features)
           setNDVIpoints(res.data.features);
           setSavedSelectedPolygonData(selectedPolygonData);
           return res.data.features
@@ -63,6 +63,9 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
     }
     return []
   }
+
+  // #fbb714
+  // #00bfb8
 
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
@@ -103,7 +106,9 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
               (point) =>
                 <Circle
                   center={{ lat: point.geometry.coordinates[1], lng: point.geometry.coordinates[0] }}
-                  radius={10}
+                  radius={5}
+                  color={savedSelectedPolygonData.id === 1 && savedSelectedPolygonData.properties.year_ === "2021"? ["#fbb714", "#00bfb8"][Math.floor(Math.random()*2)] : "blue"}
+                  // color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
                 />
             )
           }

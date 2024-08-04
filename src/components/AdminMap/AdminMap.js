@@ -4,8 +4,6 @@ import "leaflet-editable";
 import { EditControl } from "react-leaflet-draw";
 import NDVIPopup from '../NDVIPopup/NDVIPopup';
 import { useLocalStorage } from "../../elements/useLocalStorage.js"
-import { PlottyGeotiffLayer } from '../../elements/GeotiffLayer.js';
-import sputnikPhoto from "./LC08_L2SP_112026_20230324_20230404_02_T1_SR_B3.TIF"
 
 class EditedMap extends React.Component {
   state = {
@@ -17,6 +15,7 @@ class EditedMap extends React.Component {
     },
     editing: null,
     basemap: 'osm',
+    polygons: this.props.data
   }
 
   onBMChange = (bm) => {
@@ -25,8 +24,11 @@ class EditedMap extends React.Component {
     });
   }
 
-  mapRef = React.createRef()
-  polygonRefs = []
+  selectedDowndate = -1;
+
+  polygons = this.props.data;
+  mapRef = React.createRef();
+  polygonRefs = [];
 
   onClick = e => {
     const index = +e.target.dataset.index;
@@ -45,19 +47,36 @@ class EditedMap extends React.Component {
     });
   }
 
-  onClick1 = e => {
+  onClick2 = e => {
+    const index = +e.target.dataset.index;
     const refs = this.polygonRefs;
-
+    this.selectedDowndate = index;
     this.setState(({ editing }) => {
       refs.forEach((n, i) => {
-        n.leafletElement['disableEdit']();
+        const method = i === index && editing !== index
+          ? 'enableEdit'
+          : 'disableEdit';
+        n.leafletElement[method]();
       });
-
       return {
-        editing: null,
+        editing: editing === index ? null : index,
       };
     });
   }
+
+  // onClick1 = e => {
+  //   const refs = this.polygonRefs;
+
+  //   this.setState(({ editing }) => {
+  //     refs.forEach((n, i) => {
+  //       n.leafletElement['disableEdit']();
+  //     });
+
+  //     return {
+  //       editing: null,
+  //     };
+  //   });
+  // }
 
   onLoad = e => {
     e.target.on('editable:disable', this.onEditEnd);
@@ -66,16 +85,26 @@ class EditedMap extends React.Component {
   onEditEnd = ({ layer }) => {
 
     function updatePolygon(polygon, newCoords) {
+      console.log(polygon)
       let newDataPolygon = polygon
       newDataPolygon.geometry.coordinates = [newCoords._latlngs]
       return newDataPolygon
     }
-
-    this.setState(({ polygons }) => ({
-      polygons: polygons.map((n, i) => i === layer.options.index ?
-        updatePolygon(n, layer) : n
-      ),
-    }));
+    if (this.selectedDowndate === -1) {
+      console.log(123)
+      this.setState(({ polygons }) => ({
+        polygons: polygons.map((n, i) => i === layer.options.index ?
+          updatePolygon(n, layer) : n
+        ),
+      }));
+    }
+    else {
+      this.selectedDowndate = -1;
+      this.setState(({ polygons }) => ({
+        polygons: polygons.map((n, i) => n
+        ),
+      }));
+    }
   }
 
   render() {
@@ -96,14 +125,12 @@ class EditedMap extends React.Component {
       )
       return loadedServerData
     }
-
+    this.polygons = this.props.data;
     const shapePolygons = compliteShapeData();
     const canShowShapeData = this.props.showShapeDataFlag
-    const polygons = this.props.data;
     const editing = this.state.editing;
     const refs = this.polygonRefs = [];
     const _created = (e) => console.log(e);
-    console.log(this.props)
     return (
       <div>
         <Map
@@ -149,7 +176,7 @@ class EditedMap extends React.Component {
               }
             />
           </FeatureGroup>
-          {polygons.map((n, i) =>
+          {this.polygons.map((n, i) =>
             <Polygon
               key={i}
               positions={n.geometry.coordinates[0]}
@@ -163,25 +190,88 @@ class EditedMap extends React.Component {
                 <p>с\х культура: {(n.properties.crop_info === null) ? n.properties.crop_color : n.properties.crop_info.crop_name}</p>
                 <p>год: {n.properties.year_}</p>
                 <p>площадь: {n.properties.area}</p>
-                <button
-                  data-index={i}
-                  className={editing === i ? 'active' : ''}
-                  onClick={this.onClick}
-                >редактировать</button>
-                <button onClick={(e) => { this.props.NDVIAPI(true); this.props.selecterApi(n) }}>
-                  NDVI
-                </button>
+                {
+                  editing === i ? <>
+                    <p><button
+                      data-index={i}
+                      className={editing === i ? 'active' : ''}
+                      onClick={this.onClick}
+                      style={
+                        {
+                          marginLeft: "0px",
+                          position: "relative",
+                          top: "0px",
+                          left: "0px",
+                        }}>
+                      сохранить
+                    </button></p>
+                    <button
+                      data-index={i}
+                      className={editing === i ? 'active' : ''}
+                      onClick={this.onClick2}
+                      style={
+                        {
+                          marginLeft: "0px",
+                          position: "relative",
+                          top: "0px",
+                          left: "0px",
+                        }}>
+                      отменить
+                    </button>
+                    <button
+                      onClick={(e) => { this.props.NDVIAPI(true); this.props.selecterApi(n) }}
+                      style={
+                        {
+                          marginLeft: "0px",
+                          position: "relative",
+                          top: "-20px",
+                          left: "80px",
+                        }
+                      }
+                    >
+                      NDVI
+                    </button>
+                  </> : <>
+                    <button
+                      data-index={i}
+                      className={editing === i ? 'active' : ''}
+                      onClick={this.onClick}
+                      style={
+                        {
+                          marginLeft: "0px",
+                          position: "relative",
+                          top: "0px",
+                          left: "0px",
+                        }
+                      }>
+                      редактировать
+                    </button>
+                    <button
+                      onClick={(e) => { this.props.NDVIAPI(true); this.props.selecterApi(n) }}
+                      style={
+                        {
+                          marginLeft: "0px",
+                          position: "relative",
+                          top: "0px",
+                          left: "80px",
+                        }
+                      }
+                    >
+                      NDVI
+                    </button>
+                  </>
+                }
               </Popup>
             </Polygon>
           )}
-          {canShowShapeData? shapePolygons.map((n, i) =>
+          {canShowShapeData ? shapePolygons.map((n, i) =>
             <Polygon
               key={i + 10000}
               positions={n.geometry.coordinates[0]}
               index={i + 1000}
             >
             </Polygon>
-          ):<></>}
+          ) : <></>}
         </Map>
       </div>
     );
