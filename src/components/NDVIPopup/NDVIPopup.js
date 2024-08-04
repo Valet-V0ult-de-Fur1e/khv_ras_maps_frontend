@@ -3,38 +3,66 @@ import "./NDVIPopup.css"
 import axios from "axios";
 import getServerAPIURL from "../../elements/serverAPI.js"
 import { Map, TileLayer, Polygon, LayerGroup, LayersControl, Circle, Popup } from "react-leaflet";
-
+import { Chart as ChartJS } from 'chart.js/auto'
+import { Line } from "react-chartjs-2";
 
 const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
+  const [savedSelectedPolygonData, setSavedSelectedPolygonData] = useState({});
+  const [NDVIpoints, setNDVIpoints] = useState(getData());
+  const [lineData, setLineData] = useState({})
 
-  function getData(){
-    axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
+  function getLabelsG() {
+    let graphLabels = [];
+    for (var ind = 1; ind <= 52; ind++) {
+      graphLabels.push("" + ind);
+    }
+    return graphLabels;
+  }
+
+  function getDataG(points) {
+    let graphLabels = [];
+    for (var ind = 1; ind <= 52; ind++) {
+      graphLabels.push(0);
+    }
+    points.map(
+      (point) => {
+        for (var ind = 1; ind <= 52; ind++) {
+              // console.log(point.properties["ndv" + ind])
+              graphLabels[ind - 1] = graphLabels[ind - 1] + point.properties["ndv" + ind];
+            }
+      }
+    )
+    return graphLabels
+  }
+
+  function getData() {
+    // console.log(selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id))
+    if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
+      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
         .then((res) => {
+          // console.log(res.data.features)
+          setLineData({
+            labels: getLabelsG(),
+            datasets: [
+              {
+                data: getDataG(res.data.features),
+                label: "NDVI",
+                borderColor: "#3333ff",
+                fill: true,
+                lineTension: 0.5
+              }
+            ]
+          })
           setNDVIpoints(res.data.features);
+          setSavedSelectedPolygonData(selectedPolygonData);
           return res.data.features
         })
         .catch((error) => {
           console.log(error)
         })
+    }
     return []
   }
-
-  const [NDVIpoints, setNDVIpoints] = useState(getData());
-  
-  useEffect(
-    () => {
-      console.log(1)
-      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
-        .then((res) => {
-          console.log(2)
-          setNDVIpoints(res.data.features);
-          console.log(res.data.features)
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    }, [setNDVIpoints]
-  )
 
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
@@ -91,6 +119,26 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
             </Popup>
           </Polygon>
         </Map>
+        {
+          savedSelectedPolygonData.id ? <Line
+            type="line"
+            width={160}
+            height={60}
+            options={{
+              title: {
+                display: true,
+                text: "график NDVI",
+                fontSize: 20
+              },
+              legend: {
+                display: true, //Is the legend shown?
+                position: "top" //Position of the legend.
+              }
+            }}
+            data={lineData}
+          /> : <></>
+        }
+
       </div>
     </div>
   );

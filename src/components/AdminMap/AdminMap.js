@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Map, TileLayer, FeatureGroup, Polygon, Popup, LayerGroup, LayersControl } from "react-leaflet";
+import { Map, TileLayer, FeatureGroup, Polygon, Popup, LayerGroup, LayersControl, ImageOverlay } from "react-leaflet";
 import "leaflet-editable";
 import { EditControl } from "react-leaflet-draw";
 import NDVIPopup from '../NDVIPopup/NDVIPopup';
 import { useLocalStorage } from "../../elements/useLocalStorage.js"
+import { PlottyGeotiffLayer } from '../../elements/GeotiffLayer.js';
+import sputnikPhoto from "./LC08_L2SP_112026_20230324_20230404_02_T1_SR_B3.TIF"
 
 class EditedMap extends React.Component {
   state = {
@@ -11,9 +13,9 @@ class EditedMap extends React.Component {
       center: [48.5189, 135.2786],
       zoom: 11,
       editable: true,
+      windSpeed: null,
     },
     editing: null,
-    polygons: this.props.data,
     basemap: 'osm',
   }
 
@@ -77,10 +79,31 @@ class EditedMap extends React.Component {
   }
 
   render() {
+
+    const compliteShapeData = () => {
+      let loadedServerData = this.props.shapeData
+      loadedServerData.map(
+        (polygon) => {
+          polygon.geometry.coordinates.forEach((sub_polygons) => {
+            sub_polygons.forEach(
+              (polygon_coords_arr) => {
+                polygon_coords_arr.reverse()
+              }
+            )
+          }
+          )
+        }
+      )
+      return loadedServerData
+    }
+
+    const shapePolygons = compliteShapeData();
+    const canShowShapeData = this.props.showShapeDataFlag
     const polygons = this.props.data;
     const editing = this.state.editing;
     const refs = this.polygonRefs = [];
     const _created = (e) => console.log(e);
+    console.log(this.props)
     return (
       <div>
         <Map
@@ -145,12 +168,20 @@ class EditedMap extends React.Component {
                   className={editing === i ? 'active' : ''}
                   onClick={this.onClick}
                 >редактировать</button>
-                <button onClick={(e)=> {this.props.NDVIAPI(true); this.props.selecterApi(n); console.log(n)}}>
+                <button onClick={(e) => { this.props.NDVIAPI(true); this.props.selecterApi(n) }}>
                   NDVI
                 </button>
               </Popup>
             </Polygon>
           )}
+          {canShowShapeData? shapePolygons.map((n, i) =>
+            <Polygon
+              key={i + 10000}
+              positions={n.geometry.coordinates[0]}
+              index={i + 1000}
+            >
+            </Polygon>
+          ):<></>}
         </Map>
       </div>
     );
@@ -162,10 +193,11 @@ const AdminMap = (props) => {
   const [selectedNDVIPolygon, setSelectedNDVIPolygon] = useLocalStorage("selectedPolygon", {});
   return (
     <div>
-      <EditedMap data={props.data} NDVIAPI={setNDVIWinIsActivae} selecterApi={setSelectedNDVIPolygon}/>
+      <EditedMap data={props.data} NDVIAPI={setNDVIWinIsActivae} selecterApi={setSelectedNDVIPolygon} shapeData={props.shapeData} showShapeDataFlag={props.showShapeDataFlag} />
       {
-        selectedNDVIPolygon.id? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} selectedPolygonData={selectedNDVIPolygon}/> : <></>
+        selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} selectedPolygonData={selectedNDVIPolygon} /> : <></>
       }
+      {/* <img src={sputnikPhoto}></img> */}
     </div>
   )
 }

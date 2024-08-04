@@ -2,7 +2,7 @@ import React            from 'react'
 import { MapComponent } from 'react-leaflet'
 import { PropTypes }    from 'prop-types'
 
-class Tab extends React.Component {
+class SidebarTab extends React.Component {
   static propTypes = {
     id: PropTypes.string.isRequired,
     header: PropTypes.string.isRequired,
@@ -43,7 +43,7 @@ class Tab extends React.Component {
 
 // https://github.com/facebook/react/issues/2979#issuecomment-222379916
 const TabType = PropTypes.shape({
-  type: PropTypes.oneOf([Tab])
+  type: PropTypes.oneOf([SidebarTab])
 });
 
 class Sidebar extends MapComponent {
@@ -125,4 +125,4 @@ class Sidebar extends MapComponent {
   }
 }
 
-export { Sidebar, Tab }
+export { Sidebar, SidebarTab }
