@@ -108,7 +108,7 @@ const Home = () => {
   }
 
   function logout() {
-    axios.post(getServerAPIURL() + "/api/auth/logout/")
+    axios.post(getServerAPIURL() + "/auth/logout/")
     setUserIsLoginedFlag(false)
   }
 
