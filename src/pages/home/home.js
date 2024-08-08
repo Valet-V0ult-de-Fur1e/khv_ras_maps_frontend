@@ -12,10 +12,12 @@ import './Map.css';
 
 import { Sidebar, SidebarTab } from '../../elements/sidebar.js';
 import AdminMap from '../../components/AdminMap/AdminMap.js';
+import MainMap from '../../components/MainMap/MainMap.js';
 
 import { extractShapes } from "../../elements/utils.js";
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
+  console.log(dataArray.length)
   if (dataArray.length === 0) {
     axios.get(getServerAPIURL() + apiPath).
       then((response) => {
@@ -61,6 +63,8 @@ const Home = () => {
 
   const [userIsLoginedFlag, setUserIsLoginedFlag] = useLocalStorage("user_is_logined", false);
   const [loginedUserName, setLoginedUserName] = useLocalStorage("user_login", "");
+
+  const [mainMapData, setMainMapData] = useState([]);
 
   const fileInputRef = useRef();
 
@@ -194,6 +198,7 @@ const Home = () => {
   }
 
   function getDataToRender() {
+    console.log(mainMapData)
     return filtredData;
   }
 
@@ -299,6 +304,7 @@ const Home = () => {
         </SidebarTab>
       </Sidebar>
       <AdminMap className="sidebar-map" data={getDataToRender()} shapeData={shapeData} showShapeDataFlag={showShapeDataFlag}/>
+      {/* <MainMap data={getDataToRender()} shapeData={shapeData} showShapeDataFlag={showShapeDataFlag} mapData={mainMapData} updatMapData={setMainMapData}/> */}
     </div>
   )
 }

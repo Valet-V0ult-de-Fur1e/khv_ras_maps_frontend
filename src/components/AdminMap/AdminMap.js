@@ -10,8 +10,7 @@ class EditedMap extends React.Component {
     mapOptions: {
       center: [48.5189, 135.2786],
       zoom: 11,
-      editable: true,
-      windSpeed: null,
+      editable: true
     },
     editing: null,
     basemap: 'osm',
@@ -83,6 +82,7 @@ class EditedMap extends React.Component {
   }
 
   onEditEnd = ({ layer }) => {
+    console.log(layer)
 
     function updatePolygon(polygon, newCoords) {
       console.log(polygon)
@@ -125,6 +125,7 @@ class EditedMap extends React.Component {
       )
       return loadedServerData
     }
+
     this.polygons = this.props.data;
     const shapePolygons = compliteShapeData();
     const canShowShapeData = this.props.showShapeDataFlag
@@ -179,7 +180,7 @@ class EditedMap extends React.Component {
           {this.polygons.map((n, i) =>
             <Polygon
               key={i}
-              positions={n.geometry.coordinates[0]}
+              positions={n.geometry.coordinates}
               ref={ref => refs[i] = ref}
               onEditabl_edisable={this.onEditEnd}
               index={i}
@@ -287,7 +288,6 @@ const AdminMap = (props) => {
       {
         selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} selectedPolygonData={selectedNDVIPolygon} /> : <></>
       }
-      {/* <img src={sputnikPhoto}></img> */}
     </div>
   )
 }
