@@ -6,7 +6,7 @@ import { Map, TileLayer, Polygon, LayerGroup, LayersControl, Circle, Popup } fro
 import { Chart as ChartJS } from 'chart.js/auto'
 import { Line } from "react-chartjs-2";
 
-const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
+const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
   const [savedSelectedPolygonData, setSavedSelectedPolygonData] = useState({});
   const [NDVIpoints, setNDVIpoints] = useState(getData());
   const [lineData, setLineData] = useState({})
@@ -27,16 +27,14 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
     points.map(
       (point) => {
         for (var ind = 1; ind <= 52; ind++) {
-              // console.log(point.properties["ndv" + ind])
-              graphLabels[ind - 1] = graphLabels[ind - 1] + point.properties["ndv" + ind];
-            }
+          graphLabels[ind - 1] = graphLabels[ind - 1] + point.properties["ndv" + ind] / 52;
+        }
       }
     )
     return graphLabels
   }
 
   function getData() {
-    console.log(selectedPolygonData)
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
       axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
         .then((res) => {
@@ -52,7 +50,6 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
               }
             ]
           })
-          // console.log(res.data.features)
           setNDVIpoints(res.data.features);
           setSavedSelectedPolygonData(selectedPolygonData);
           return res.data.features
@@ -107,8 +104,8 @@ const NDVIPopup = ({ active, setActive, selectedPolygonData }) => {
                 <Circle
                   center={{ lat: point.geometry.coordinates[1], lng: point.geometry.coordinates[0] }}
                   radius={5}
-                  color={savedSelectedPolygonData.id === 1 && savedSelectedPolygonData.properties.year_ === "2021"? ["#fbb714", "#00bfb8"][Math.floor(Math.random()*2)] : "blue"}
-                  // color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
+                  color={savedSelectedPolygonData.id === 1 && savedSelectedPolygonData.properties.year_ === "2021" ? ["#fbb714", "#00bfb8"][Math.floor(Math.random() * 2)] : cropList[point.properties.id_crop_plan - 1].crop_color}
+                // color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
                 />
             )
           }

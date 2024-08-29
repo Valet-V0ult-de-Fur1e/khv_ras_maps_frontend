@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react'
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./pages/home/home.js";
+// import Home from "./pages/home/home.js";
 import Login from "./pages/login/login";
 import {useLocalStorage} from "./elements/useLocalStorage.js"
+import TestHome from './pages/test/test.js';
 
 function App() {
   const [rememberUserFlag, setRememberUserFlag] = useLocalStorage("user_is_remembered_flag", false);
@@ -21,8 +22,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/' element={<Home/>}/>
+        <Route path='/' element={<TestHome/>}/>
         <Route path='/login' element={<Login/>}/>
+        <Route path='/test' element={<TestHome/>}/>
       </Routes>
     </BrowserRouter>
   )

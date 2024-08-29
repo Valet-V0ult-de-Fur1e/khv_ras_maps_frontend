@@ -30,6 +30,7 @@ class EditedMap extends React.Component {
   polygonRefs = [];
 
   onClick = e => {
+    console.log(this.polygonRefs)
     const index = +e.target.dataset.index;
     const refs = this.polygonRefs;
 
@@ -47,6 +48,7 @@ class EditedMap extends React.Component {
   }
 
   onClick2 = e => {
+    console.log(this.polygonRefs)
     const index = +e.target.dataset.index;
     const refs = this.polygonRefs;
     this.selectedDowndate = index;
@@ -286,7 +288,7 @@ const AdminMap = (props) => {
     <div>
       <EditedMap data={props.data} NDVIAPI={setNDVIWinIsActivae} selecterApi={setSelectedNDVIPolygon} shapeData={props.shapeData} showShapeDataFlag={props.showShapeDataFlag} />
       {
-        selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} selectedPolygonData={selectedNDVIPolygon} /> : <></>
+        selectedNDVIPolygon.id ? <NDVIPopup cropList={props.cropList} active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} selectedPolygonData={selectedNDVIPolygon} /> : <></>
       }
     </div>
   )

@@ -7,48 +7,34 @@ import "leaflet-editable";
 import Select from 'react-select';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import "./home.css";
-import './Map.css';
+import "./test.css";
+import './TestMap.css';
 
 import { Sidebar, SidebarTab } from '../../elements/sidebar.js';
-import AdminMap from '../../components/AdminMap/AdminMap.js';
 import MainMap from '../../components/MainMap/MainMap.js';
 
 import { extractShapes } from "../../elements/utils.js";
+import { ShowSelectedOnlyButton } from 'react-bootstrap-table';
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
-  console.log(dataArray.length)
   if (dataArray.length === 0) {
     axios.get(getServerAPIURL() + apiPath).
       then((response) => {
         setDataArrayFunc(response.data.data);
       }).
       catch((error) => {
-        // alert("Ошибка сервера")
+        console.log(error)
       })
   }
 }
 
-// function getCookie(name) {
-//   var cookieValue = null;
-//   if (document.cookie && document.cookie !== '') {
-//     var cookies = document.cookie.split(';');
-//     for (var i = 0; i < cookies.length; i++) {
-//       var cookie = jQuery.trim(cookies[i]);
-//       if (cookie.substring(0, name.length + 1) === (name + '=')) {
-//         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-//         break;
-//       }
-//     }
-//   }
-//   return cookieValue;
-// }
+const TestHome = () => {
+  const [showSatelliteImageFlag, setShowSatelliteImageFlag] = useState(false);
+  const [showSatelliteImageIconsFlag, setShowSatelliteImagIconsFlag] = useState(false);
 
+  const [layerIsEditingFlag, setLayerIsEditingFlag] = useState(false);
 
-const Home = () => {
-  const [shapeData, setShapeData] = useState([]);
-  const [showSatelliteImageFlag, setShowSatelliteImageFlag] = useState(true)
-  const [showShapeDataFlag, setShowShapeDataFlag] = useState(false);
+  const [editModFlag, setEditModFlag] = useState(false);
 
   const [listOfYears, setListOfYears] = useState([]);
   const [listOfCrops, setListOfCrops] = useState([]);
@@ -59,17 +45,22 @@ const Home = () => {
   const [collapsedFlag, setCollapsedFlag] = useState(false);
   const [selectedTad, setSelectedTab] = useState('home')
 
-  const [filtredData, setFiltredData] = useState([]);
   const [allLayersData, setAllLayersData] = useState({});
 
   const [userIsLoginedFlag, setUserIsLoginedFlag] = useLocalStorage("user_is_logined", false);
   const [loginedUserName, setLoginedUserName] = useLocalStorage("user_login", "");
 
   const [mainMapData, setMainMapData] = useState([]);
+  const [userMapData, setUserMapData] = useState([]);
+
+  const [selectedFileToSave, setSelectedFileToSave] = useState("server");
+  const [savedFileName, setSelectedFileName] = useState("");
 
   const fileInputRef = useRef();
 
   const navigate = useNavigate();
+
+  // console.log(userMapData)
 
   function getSelectorListOfYears() {
     let selectorData = []
@@ -172,15 +163,21 @@ const Home = () => {
         newFiltredData.push(...filtredYearData)
       }
     );
-    setFiltredData(newFiltredData);
+    setMainMapData(newFiltredData)
   }
 
   const importShapeFile = async (e) => {
-    setShapeData(await extractShapes(e.target.files));
+    setUserMapData(await extractShapes(e.target.files));
   };
 
   function exportShapeFile() {
-    alert("a feature in the development process");
+    var shpwrite = require("@mapbox/shp-write");
+    shpwrite.zip({
+      type: "FeatureCollection",
+      features: selectedFileToSave === "server" ? mainMapData : userMapData
+    }, { outputType: "blob" }).then(function (zipBlob) {
+      saveAs(zipBlob, savedFileName + ".zip");
+    });
   }
 
   function updataAllData() {
@@ -198,13 +195,8 @@ const Home = () => {
     setAllLayersData(newAllLayersData);
   }
 
-  function getDataToRender() {
-    console.log(mainMapData)
-    return filtredData;
-  }
-
   function compliteShapeData() {
-    let loadedServerData = shapeData
+    let loadedServerData = userMapData
     loadedServerData.map(
       (polygon) => {
         polygon.geometry.coordinates.forEach((sub_polygons) => {
@@ -280,12 +272,12 @@ const Home = () => {
               <span>Export</span>
             </button>
 
-            <button type="file" onClick={()=>fileInputRef.current.click()} className="styled-btn btn-import">
+            <button type="file" onClick={() => fileInputRef.current.click()} className="styled-btn btn-import">
               <div className="circle">
                 <svg width="32px" height="32px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
                   <path fill="#000000" fillRule="evenodd" d="M14,9 C14.5523,9 15,9.44772 15,10 L15,13 C15,14.1046 14.1046,15 13,15 L3,15 C1.89543,15 1,14.1046 1,13 L1,10 C1,9.44772 1.44772,9 2,9 C2.55228,9 3,9.44771 3,10 L3,13 L13,13 L13,10 C13,9.44771 13.4477,9 14,9 Z M8,1 C8.55228,1 9,1.44772 9,2 L9,6.58579 L10.2929,5.29289 C10.6834,4.90237 11.3166,4.90237 11.7071,5.29289 C12.0976,5.68342 12.0976,6.31658 11.7071,6.70711 L8,10.4142 L4.29289,6.70711 C3.90237,6.31658 3.90237,5.68342 4.29289,5.29289 C4.68342,4.90237 5.31658,4.90237 5.70711,5.29289 L7,6.58579 L7,2 C7,1.44772 7.44772,1 8,1 Z" />
                 </svg>
-                <input onChange={importShapeFile} multiple={false} ref={fileInputRef} type='file'hidden/>
+                <input onChange={importShapeFile} multiple={false} ref={fileInputRef} type='file' hidden />
               </div>
               <span>Import</span>
             </button>
@@ -317,17 +309,38 @@ const Home = () => {
             </button>
           </div>
         </SidebarTab>
-        {/* <SidebarTab id="layers" header="Layers" icon="fa fa-id-card">
-        </SidebarTab> */}
+        <SidebarTab id="layers" header="Layers" icon="fa fa-id-card">
+          <p><input type="checkbox" defaultChecked={editModFlag} name="myCheckbox" onClick={() => { setEditModFlag(!editModFlag); }} /> Режим редактирования</p>
+          <p>выбор слоя <select onChange={e=>setSelectedFileToSave(e.target.value)}>
+            <option value="server">Сервер вц</option>
+            <option value="user">Пользовательский</option>
+          </select></p>
+          <p>имя сохраняемого файла <input type='text' onChange={e=>setSelectedFileName(e.target.value)}></input></p>
+        </SidebarTab>
         <SidebarTab id="settings" header="Settings" icon="fa fa-cog" anchor="bottom">
-          <p><input type="checkbox" defaultChecked={showSatelliteImageFlag} name="myCheckbox" onClick={()=>{setShowSatelliteImageFlag(!showSatelliteImageFlag)}}/> Отобразить спутниковую подложку</p>
-          <p><input type="checkbox" defaultChecked={showShapeDataFlag} name="myCheckbox" onClick={()=>{setShowShapeDataFlag(!showShapeDataFlag); console.log(showShapeDataFlag)}}/> Отобразить спутниковую подложку</p>
+          <p><input type="checkbox" defaultChecked={showSatelliteImageFlag} name="myCheckbox" onClick={() => { setShowSatelliteImageFlag(!showSatelliteImageFlag); }} /> Отобразить спутниковую подложку</p>
+          <p><input type="checkbox" defaultChecked={showSatelliteImageIconsFlag} name="myCheckbox" onClick={() => { setShowSatelliteImagIconsFlag(!showSatelliteImageIconsFlag); }} /> Отобразить вспомогательные знаке на спутниковой подложке</p>
         </SidebarTab>
       </Sidebar>
-      <AdminMap className="sidebar-map" cropList={listOfCrops} data={getDataToRender()} shapeData={shapeData} showShapeDataFlag={showShapeDataFlag}/>
-      {/* <MainMap data={getDataToRender()} shapeData={compliteShapeData()} mapData={mainMapData} updatMapData={setMainMapData}/> */}
+      <MainMap
+        data={mainMapData}
+        userMapData={compliteShapeData()}
+
+        updateMapData={setMainMapData}
+        updateUserMapData={setUserMapData}
+
+        showSatelliteImage={showSatelliteImageFlag}
+        showSatelliteImageIcons={showSatelliteImageIconsFlag}
+
+        editingFlag={layerIsEditingFlag}
+        updateEditingFlag={setLayerIsEditingFlag}
+
+        editModFlag={editModFlag}
+
+        cropList={listOfCrops}
+      />
     </div>
   )
 }
 
-export default Home
+export default TestHome
