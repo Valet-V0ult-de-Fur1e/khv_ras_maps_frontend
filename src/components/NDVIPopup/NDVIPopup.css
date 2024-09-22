@@ -9,7 +9,7 @@
     align-items: center;
     justify-content: center;
     z-index: 3000;
-    transform:  scale(0);
+    transform: scale(0);
 }
 
 .modal.active {
@@ -20,6 +20,13 @@
     padding: 20px;
     border-radius: 12px;
     background-color: white;
-    /* height: 100vh; */
+    height: 95vh;
     width: 90vw;
+}
+
+.selecterButton {
+    position: relative;
+    top: 5%;
+    left: 90%;
+    z-index: 10000;
 }

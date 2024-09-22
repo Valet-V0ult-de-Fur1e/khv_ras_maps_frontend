@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react'
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-// import Home from "./pages/home/home.js";
 import Login from "./pages/login/login";
 import {useLocalStorage} from "./elements/useLocalStorage.js"
 import TestHome from './pages/test/test.js';
@@ -24,7 +23,6 @@ function App() {
       <Routes>
         <Route path='/' element={<TestHome/>}/>
         <Route path='/login' element={<Login/>}/>
-        <Route path='/test' element={<TestHome/>}/>
       </Routes>
     </BrowserRouter>
   )

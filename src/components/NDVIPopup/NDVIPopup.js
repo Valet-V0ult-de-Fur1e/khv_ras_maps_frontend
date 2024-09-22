@@ -5,11 +5,16 @@ import getServerAPIURL from "../../elements/serverAPI.js"
 import { Map, TileLayer, Polygon, LayerGroup, LayersControl, Circle, Popup } from "react-leaflet";
 import { Chart as ChartJS } from 'chart.js/auto'
 import { Line } from "react-chartjs-2";
+import { Tabs, TabItem } from "../../elements/tabScroll/tabScroll.js";
+import Legend from "../../elements/mapLegend/mapLegend.js"
 
 const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
   const [savedSelectedPolygonData, setSavedSelectedPolygonData] = useState({});
-  const [NDVIpoints, setNDVIpoints] = useState(getData());
-  const [lineData, setLineData] = useState({})
+  const [NDVI20points, setNDVI20points] = useState(getDataNDVI20());
+  const [lineDataNDVI20, setLineDataNDVI20] = useState({})
+  const [NDVI10points, setNDVI10points] = useState(getDataNDVI10());
+  const [lineDataNDVI10, setLineDataNDVI10] = useState({})
+  const [selectedModel, setSelectedModel] = useState('NDVI 20');
 
   function getLabelsG() {
     let graphLabels = [];
@@ -34,23 +39,23 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     return graphLabels
   }
 
-  function getData() {
+  function getDataNDVI10() {
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
       axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
         .then((res) => {
-          setLineData({
+          setLineDataNDVI10({
             labels: getLabelsG(),
             datasets: [
               {
                 data: getDataG(res.data.features),
-                label: "NDVI",
+                label: "NDVI 10",
                 borderColor: "#3333ff",
                 fill: true,
                 lineTension: 0.5
               }
             ]
           })
-          setNDVIpoints(res.data.features);
+          setNDVI10points(res.data.features);
           setSavedSelectedPolygonData(selectedPolygonData);
           return res.data.features
         })
@@ -61,86 +66,142 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     return []
   }
 
-  // #fbb714
-  // #00bfb8
+  function getDataNDVI20() {
+    if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
+      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
+        .then((res) => {
+          setLineDataNDVI20({
+            labels: getLabelsG(),
+            datasets: [
+              {
+                data: getDataG(res.data.features),
+                label: "NDVI 20",
+                borderColor: "#3333ff",
+                fill: true,
+                lineTension: 0.5
+              }
+            ]
+          })
+          setNDVI20points(res.data.features);
+          setSavedSelectedPolygonData(selectedPolygonData);
+          return res.data.features
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }
+    return []
+  }
+
+  function getColor(data) {
+    // console.log(data)
+    if (data === undefined) return "black"
+    return data.crop_color
+  }
+
+  function UpdateModel(e) {
+    setSelectedModel(e.target.value)
+  }
 
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
       <div className="modal__content" onClick={e => e.stopPropagation()}>
-        <Map
-          {...{
-            center: [48.5189, 135.2786],
-            zoom: 13,
-            editable: true,
-          }
-          }
-        >
-          <LayersControl>
-            <LayersControl.BaseLayer name="Open Street Map">
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-            </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer checked name="Google Map">
-              <TileLayer
-                attribution="Google Maps"
-                url="https://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}"
-              />
-            </LayersControl.BaseLayer>
-            <LayersControl.BaseLayer name="Google Map Satellite">
-              <LayerGroup>
-                <TileLayer
-                  attribution="Google Maps Satellite"
-                  url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
-                />
-                <TileLayer url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
-              </LayerGroup>
-            </LayersControl.BaseLayer>
-          </LayersControl>
-          {
-            NDVIpoints.map(
-              (point) =>
-                <Circle
-                  center={{ lat: point.geometry.coordinates[1], lng: point.geometry.coordinates[0] }}
-                  radius={5}
-                  color={savedSelectedPolygonData.id === 1 && savedSelectedPolygonData.properties.year_ === "2021" ? ["#fbb714", "#00bfb8"][Math.floor(Math.random() * 2)] : cropList[point.properties.id_crop_plan - 1].crop_color}
-                // color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
-                />
-            )
-          }
-          <Polygon
-            positions={selectedPolygonData.geometry.coordinates[0]}
-            color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
-          >
-            <Popup>
-              <p>номер реестра: {selectedPolygonData.properties.reestr_number}</p>
-              <p>с\х культура: {(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_name}</p>
-              <p>год: {selectedPolygonData.properties.year_}</p>
-              <p>площадь: {selectedPolygonData.properties.area}</p>
-            </Popup>
-          </Polygon>
-        </Map>
-        {
-          savedSelectedPolygonData.id ? <Line
-            type="line"
-            width={160}
-            height={60}
-            options={{
-              title: {
-                display: true,
-                text: "график NDVI",
-                fontSize: 20
-              },
-              legend: {
-                display: true, //Is the legend shown?
-                position: "top" //Position of the legend.
-              }
-            }}
-            data={lineData}
-          /> : <></>
-        }
-
+        <div></div>
+        <select onChange={UpdateModel} className="selecterButton">
+          <option value="NDVI 20">NDVI 20</option>
+          <option value="NDVI 10">NDVI 10</option>
+        </select>
+        <Tabs
+          tabs={[
+            {
+              title: "Карта",
+              content: <div style={{ height: '90%' }}>
+                <Map
+                  {...{
+                    center: selectedPolygonData.geometry.coordinates[0][0][0],
+                    zoom: 15,
+                    editable: true,
+                  }
+                  }
+                >
+                  <LayersControl>
+                    <LayersControl.BaseLayer name="Open Street Map">
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer checked name="Google Map">
+                      <TileLayer
+                        attribution="Google Maps"
+                        url="https://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}"
+                      />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer name="Google Map Satellite">
+                      <LayerGroup>
+                        <TileLayer
+                          attribution="Google Maps Satellite"
+                          url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
+                        />
+                        <TileLayer url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
+                      </LayerGroup>
+                    </LayersControl.BaseLayer>
+                  </LayersControl>
+                  {
+                    (selectedModel == "NDVI 20" ? NDVI20points : NDVI10points).map(
+                      (point) =>
+                        <Circle
+                          center={{ lat: point.geometry.coordinates[1], lng: point.geometry.coordinates[0] }}
+                          radius={(selectedModel == "NDVI 20" ? 10 : 5)}
+                          color={getColor(cropList.filter(crop => crop.id === point.properties.id_crop_pixel_result)[0])}
+                        />
+                    )
+                  }
+                  <Polygon
+                    positions={selectedPolygonData.geometry.coordinates[0]}
+                    color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
+                  >
+                    <Popup>
+                      <p>номер реестра: {selectedPolygonData.properties.reestr_number}</p>
+                      <p>с\х культура: {(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_name}</p>
+                      <p>год: {selectedPolygonData.properties.year_}</p>
+                      <p>площадь: {selectedPolygonData.properties.area}</p>
+                    </Popup>
+                  </Polygon>
+                </Map>
+              </div>,
+              visible: true
+            },
+            {
+              title: "График NDVI",
+              content: <div>
+                {
+                  savedSelectedPolygonData.id ? <div>
+                    <Line
+                      type="line"
+                      width={160}
+                      height={60}
+                      options={{
+                        title: {
+                          display: true,
+                          text: "график " + selectedModel,
+                          fontSize: 20
+                        },
+                        legend: {
+                          display: true, //Is the legend shown?
+                          position: "top" //Position of the legend.
+                        }
+                      }}
+                      data={(selectedModel == "NDVI 20" ? lineDataNDVI20 : lineDataNDVI10)}
+                    /> </div>
+                    :
+                    <></>
+                }
+              </div>,
+              visible: true
+            }
+          ]}
+        />
       </div>
     </div>
   );

@@ -16,6 +16,8 @@ import MainMap from '../../components/MainMap/MainMap.js';
 import { extractShapes } from "../../elements/utils.js";
 import { ShowSelectedOnlyButton } from 'react-bootstrap-table';
 
+import mapLegend from '../../elements/mapLegend/mapLegend.js';
+
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   if (dataArray.length === 0) {
     axios.get(getServerAPIURL() + apiPath).
@@ -28,13 +30,17 @@ function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   }
 }
 
+
 const TestHome = () => {
+  const [selectedTab1, setSelectedTab1] = useState(-1);
+
   const [showSatelliteImageFlag, setShowSatelliteImageFlag] = useState(false);
   const [showSatelliteImageIconsFlag, setShowSatelliteImagIconsFlag] = useState(false);
 
   const [layerIsEditingFlag, setLayerIsEditingFlag] = useState(false);
 
   const [editModFlag, setEditModFlag] = useState(false);
+  const [showMapLegendFlag, setShowMapLegendFlag] = useState(true);
 
   const [listOfYears, setListOfYears] = useState([]);
   const [listOfCrops, setListOfCrops] = useState([]);
@@ -59,8 +65,6 @@ const TestHome = () => {
   const fileInputRef = useRef();
 
   const navigate = useNavigate();
-
-  // console.log(userMapData)
 
   function getSelectorListOfYears() {
     let selectorData = []
@@ -229,6 +233,10 @@ const TestHome = () => {
     }, [listOfYears, setListOfYears, listOfCrops, setListOfCrops]
   )
 
+  function UpdateMapLegendFlag() {
+    setShowMapLegendFlag(!showMapLegendFlag)
+  }
+
   return (
     <div>
       <Sidebar
@@ -320,6 +328,7 @@ const TestHome = () => {
         <SidebarTab id="settings" header="Settings" icon="fa fa-cog" anchor="bottom">
           <p><input type="checkbox" defaultChecked={showSatelliteImageFlag} name="myCheckbox" onClick={() => { setShowSatelliteImageFlag(!showSatelliteImageFlag); }} /> Отобразить спутниковую подложку</p>
           <p><input type="checkbox" defaultChecked={showSatelliteImageIconsFlag} name="myCheckbox" onClick={() => { setShowSatelliteImagIconsFlag(!showSatelliteImageIconsFlag); }} /> Отобразить вспомогательные знаке на спутниковой подложке</p>
+          <p><button onClick={UpdateMapLegendFlag}>{showMapLegendFlag? "скрыть легенду карты" : "показать легенду карты"}</button></p>
         </SidebarTab>
       </Sidebar>
       <MainMap
