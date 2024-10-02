@@ -1,4 +1,4 @@
-const getServerAPIURL = (securityFlag=true) => {
+const getServerAPIURL = (securityFlag=false) => {
     return securityFlag ? "https://195.133.198.89:8000" : "http://195.133.198.89:8000"
 }
 
