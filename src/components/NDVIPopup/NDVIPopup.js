@@ -41,7 +41,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
 
   function getDataNDVI10() {
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
-      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
+      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=10&fi=" + selectedPolygonData.id)
         .then((res) => {
           setLineDataNDVI10({
             labels: getLabelsG(),
