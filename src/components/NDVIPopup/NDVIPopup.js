@@ -29,13 +29,18 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     for (var ind = 1; ind <= 52; ind++) {
       graphLabels.push(0);
     }
+    let pointsCount = 0;
     points.map(
       (point) => {
+        pointsCount ++;
         for (var ind = 1; ind <= 52; ind++) {
-          graphLabels[ind - 1] = graphLabels[ind - 1] + point.properties["ndv" + ind] / 52;
+          graphLabels[ind - 1] = graphLabels[ind - 1] + point.properties["ndv" + ind];
         }
       }
     )
+    for (var ind = 1; ind <= 52; ind++) {
+      graphLabels[ind - 1] = graphLabels[ind - 1] / pointsCount;
+    }
     return graphLabels
   }
 
