@@ -9,12 +9,16 @@ import { Tabs, TabItem } from "../../elements/tabScroll/tabScroll.js";
 import Legend from "../../elements/mapLegend/mapLegend.js"
 
 const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
+  const NDVITypes = [
+    {value: "NDVI 20", label: "NDVI 20"},
+    {value: "NDVI 10", label: "NDVI 10"}
+  ];
   const [savedSelectedPolygonData, setSavedSelectedPolygonData] = useState({});
   const [NDVI20points, setNDVI20points] = useState(getDataNDVI20());
   const [lineDataNDVI20, setLineDataNDVI20] = useState({})
   const [NDVI10points, setNDVI10points] = useState(getDataNDVI10());
   const [lineDataNDVI10, setLineDataNDVI10] = useState({})
-  const [selectedModel, setSelectedModel] = useState('NDVI 20');
+  const [selectedModel, setSelectedModel] = useState(NDVITypes[0]);
 
   function getLabelsG() {
     let graphLabels = [];
@@ -108,17 +112,12 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     setSelectedModel(e.target.value)
   }
 
-  const options = [
-    {value: "NDVI 20", label: "NDVI 20"},
-    {value: "NDVI 10", label: "NDVI 10"}
-  ];
-
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
       <div className="modal__content" onClick={e => e.stopPropagation()}>
         <div></div>
         <select onChange={UpdateModel} className="selecterButton">
-          {options.map(({value, label}, index) => <option value={value}>{label}</option>)}
+          {NDVITypes.map(({value, label}, index) => <option value={value}>{label}</option>)}
         </select>
         <Tabs
           tabs={[

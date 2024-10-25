@@ -198,7 +198,7 @@ const MainMap = (props) => {
                       <p>с\х культура: {(n.properties.crop_info === null) ? n.properties.crop_color : n.properties.crop_info.crop_name}</p>
                       <p>год: {n.properties.year_}</p>
                       <p>площадь: {n.properties.area}</p>
-                      <button onClick={(e) => { setNDVIWinIsActivae(true); setSelectedNDVIPolygon(n) }}>
+                      <button  className="classic-btn sidebar__btn-filter" onClick={(e) => { setNDVIWinIsActivae(true); setSelectedNDVIPolygon(n) }}>
                         NDVI
                       </button>
                     </Popup>
