@@ -108,13 +108,17 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     setSelectedModel(e.target.value)
   }
 
+  const options = [
+    {value: "NDVI 20", label: "NDVI 20"},
+    {value: "NDVI 10", label: "NDVI 10"}
+  ];
+
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
       <div className="modal__content" onClick={e => e.stopPropagation()}>
         <div></div>
         <select onChange={UpdateModel} className="selecterButton">
-          <option value="NDVI 20">NDVI 20</option>
-          <option value="NDVI 10">NDVI 10</option>
+          {options.map(({value, label}, index) => <option value={value}>{label}</option>)}
         </select>
         <Tabs
           tabs={[
