@@ -121,7 +121,10 @@
    * Prevent `sub` and `sup` elements from affecting the line height in
    * all browsers.
    */
-  
+  path.leaflet-interactive {
+    opacity: 1;
+    fill-opacity: 1;
+   }
   sub,
   sup {
     font-size: 75%;

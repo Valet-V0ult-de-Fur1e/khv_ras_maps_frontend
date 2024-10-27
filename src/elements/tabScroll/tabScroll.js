@@ -9,7 +9,7 @@ export class Tabs extends Component {
     this.tabTiles = React.createRef();
     this.tilesRef = [];
     this.state = {
-      selectedTab: "",
+      selectedTab: props.selectedTab,
       tilesOverFlowRight: false,
       tilesOverFlowLeft: false,
       left: 0

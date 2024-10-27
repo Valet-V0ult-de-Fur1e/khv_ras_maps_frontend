@@ -6,7 +6,7 @@ import { Map, TileLayer, Polygon, LayerGroup, LayersControl, Circle, Popup } fro
 import { Chart as ChartJS } from 'chart.js/auto'
 import { Line } from "react-chartjs-2";
 import { Tabs, TabItem } from "../../elements/tabScroll/tabScroll.js";
-import Legend from "../../elements/mapLegend/mapLegend.js"
+// import Legend from "../../elements/mapLegend/mapLegend.js"
 
 const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
   const NDVITypes = [
@@ -79,6 +79,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
       axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
         .then((res) => {
+          console.log(lineDataNDVI20);
           setLineDataNDVI20({
             labels: getLabelsG(),
             datasets: [
@@ -120,6 +121,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
           {NDVITypes.map(({value, label}, index) => <option value={value}>{label}</option>)}
         </select>
         <Tabs
+          selectedTab={"Карта"}
           tabs={[
             {
               title: "Карта",
@@ -155,19 +157,10 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
                       </LayerGroup>
                     </LayersControl.BaseLayer>
                   </LayersControl>
-                  {
-                    (selectedModel == "NDVI 20" ? NDVI20points : NDVI10points).map(
-                      (point) =>
-                        <Circle
-                          center={{ lat: point.geometry.coordinates[1], lng: point.geometry.coordinates[0] }}
-                          radius={(selectedModel == "NDVI 20" ? 10 : 5)}
-                          color={getColor(cropList.filter(crop => crop.id === point.properties.id_crop_pixel_result)[0])}
-                        />
-                    )
-                  }
                   <Polygon
                     positions={selectedPolygonData.geometry.coordinates[0]}
                     color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
+                    fillOpacity={1}
                   >
                     <Popup>
                       <p>номер реестра: {selectedPolygonData.properties.reestr_number}</p>
@@ -176,6 +169,17 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
                       <p>площадь: {selectedPolygonData.properties.area}</p>
                     </Popup>
                   </Polygon>
+                  {
+                    (selectedModel == "NDVI 20" ? NDVI20points : NDVI10points).map(
+                      (point) =>
+                        <Circle
+                          center={{ lat: point.geometry.coordinates[1], lng: point.geometry.coordinates[0] }}
+                          radius={(selectedModel == "NDVI 20" ? 10 : 5)}
+                          color={getColor(cropList.filter(crop => crop.id === point.properties.id_crop_pixel_result)[0])}
+                          fillOpacity={0.9}
+                        />
+                    )
+                  }
                 </Map>
               </div>,
               visible: true

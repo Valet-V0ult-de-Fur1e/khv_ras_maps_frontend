@@ -118,6 +118,7 @@ const TestHome = () => {
       axios.get(getServerAPIURL() + "/api/list-of-fields-main/?year=" + year)
         .then((response) => {
           let loadedServerData = response.data.features
+          // console.log(loadedServerData)
           loadedServerData.map(
             (polygon) => {
               polygon.geometry.coordinates.forEach((sub_polygons) => {
@@ -142,6 +143,7 @@ const TestHome = () => {
         .catch((error) => {
           alert("Превышено время ожидания сервера!")
         });
+      // console.log(allLayersData)
       setAllLayersData(updatedYearData);
       return updatedYearData[year]
     }
