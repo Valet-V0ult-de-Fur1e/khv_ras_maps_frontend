@@ -192,7 +192,7 @@ const MainMap = (props) => {
                     onEditabl_edisable={onEditEnd}
                     index={i}
                     color={(n.properties.crop_info === null) ? n.properties.crop_color : n.properties.crop_info.crop_color}
-                    fillOpacity={0.9}
+                    fillOpacity={0.4}
                   >
                     <Popup>
                       <p>номер реестра: {n.properties.reestr_number}</p>
@@ -236,7 +236,7 @@ const MainMap = (props) => {
                       onEditabl_edisable={onEditEnd}
                       index={i}
                       onClick={EditUserPolygon}
-                      fillOpacity={0.9}
+                      fillOpacity={0.4}
                     >
                     </Polygon>
                   </FeatureGroup>

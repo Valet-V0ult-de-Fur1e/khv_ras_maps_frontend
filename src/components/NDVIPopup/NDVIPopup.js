@@ -160,7 +160,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
                   <Polygon
                     positions={selectedPolygonData.geometry.coordinates[0]}
                     color={(selectedPolygonData.properties.crop_info === null) ? selectedPolygonData.properties.crop_color : selectedPolygonData.properties.crop_info.crop_color}
-                    fillOpacity={1}
+                    fillOpacity={0.5}
                   >
                     <Popup>
                       <p>номер реестра: {selectedPolygonData.properties.reestr_number}</p>
@@ -176,7 +176,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
                           center={{ lat: point.geometry.coordinates[1], lng: point.geometry.coordinates[0] }}
                           radius={(selectedModel == "NDVI 20" ? 10 : 5)}
                           color={getColor(cropList.filter(crop => crop.id === point.properties.id_crop_pixel_result)[0])}
-                          fillOpacity={0.9}
+                          fillOpacity={0.7}
                         />
                     )
                   }
