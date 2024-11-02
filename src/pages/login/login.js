@@ -17,7 +17,7 @@ const Login = () => {
     const navigate = useNavigate();
 
     const loginUser = () => {
-        axios.post(getServerAPIURL() + "/auth/login/", {
+        axios.post(getServerAPIURL() + "/api/auth/login/", {
             "username": userLogin,
             "password": userPassword
         })
