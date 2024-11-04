@@ -37,7 +37,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-linux": "WDS_SOCKET_PORT=443 PORT=3000 react-scripts start",
+    "start-linux": "PORT=3000 react-scripts start",
+    "start-linux2": "WDS_SOCKET_PORT=443 PORT=3000 react-scripts start",
+    "start-linux3": "WDS_SOCKET_PORT=3000 PORT=3000 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
