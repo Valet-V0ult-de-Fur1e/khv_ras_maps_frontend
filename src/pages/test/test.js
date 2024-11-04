@@ -319,7 +319,7 @@ const TestHome = () => {
             </button>
           </div>
         </SidebarTab>
-        <SidebarTab id="layers" header="Layers" icon="fa fa-id-card">
+        <SidebarTab id="layers" header="Layers" icon="fa fa-file-image-o">
           <p><input type="checkbox" defaultChecked={editModFlag} name="myCheckbox" onClick={() => { setEditModFlag(!editModFlag); }} /> Режим редактирования</p>
           <p>выбор слоя <select onChange={e=>setSelectedFileToSave(e.target.value)}>
             <option value="server">Сервер вц</option>

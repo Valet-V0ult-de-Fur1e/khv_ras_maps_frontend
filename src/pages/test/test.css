@@ -132,7 +132,10 @@ p {
   width: 30px;
   height: 30px;
 }
-
+.fa{
+  font-size: 25;
+  margin: 8px;
+}
 .styled-btn span {
   font-size: 12pt;
   color: #333;

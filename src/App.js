@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/login/login";
 import {useLocalStorage} from "./elements/useLocalStorage.js"
 import TestHome from './pages/test/test.js';
+import "./App.css";
 
 function App() {
   const [rememberUserFlag, setRememberUserFlag] = useLocalStorage("user_is_remembered_flag", false);
