@@ -20,7 +20,19 @@ import mapLegend from '../../elements/mapLegend/mapLegend.js';
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   if (dataArray.length === 0) {
-    axios.get(getServerAPIURL() + apiPath).
+    axios.get(getServerAPIURL() + apiPath
+    ,{
+      // headers:{
+      //   "Content-type": "application/json",
+      //   "Access-Control-Allow-Origin": "*"
+      // }
+      cors: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,PUT,POST",
+        "Access-Control-Allow-Headers": "Authorization,X-My-Token"
+      }
+    }
+  ).
       then((response) => {
         setDataArrayFunc(response.data.data);
       }).
@@ -108,14 +120,34 @@ const TestHome = () => {
   }
 
   function logout() {
-    axios.post(getServerAPIURL() + "/auth/logout/")
+    axios.post(getServerAPIURL() + "/auth/logout/"
+    ,{
+      // headers:{
+      //   "Content-type": "application/json",
+      //   "Access-Control-Allow-Origin": "*"
+      // }
+      cors: {
+        "Access-Control-Allow-Origin": "*"
+      }
+    }
+  )
     setUserIsLoginedFlag(false)
   }
 
   function loadYearData(year) {
     if (year != 2025) {
       let updatedYearData = allLayersData;
-      axios.get(getServerAPIURL() + "/api/list-of-fields-main/?year=" + year)
+      axios.get(getServerAPIURL() + "/api/list-of-fields-main/?year=" + year
+      ,{
+        // headers:{
+        //   "Content-type": "application/json",
+        //   "Access-Control-Allow-Origin": "*"
+        // }
+        cors: {
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    )
         .then((response) => {
           let loadedServerData = response.data.features
           // console.log(loadedServerData)

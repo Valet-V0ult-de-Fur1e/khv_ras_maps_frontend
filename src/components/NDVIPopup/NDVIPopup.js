@@ -120,12 +120,15 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
   function getDataNDVI10() {
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
       axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=10&fi=" + selectedPolygonData.id
-      ,{
-        headers:{
-          "Access-Control-Allow-Origin" : "*"
+        , {
+          // headers:{
+          //   "Content-type": "application/json"
+          // }
+          cors: {
+            "Access-Control-Allow-Origin": "*"
+          }
         }
-      }
-    )
+      )
         .then((res) => {
           setLineDataNDVI10({
             labels: getLabelsG(),
@@ -153,12 +156,13 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
   function getDataNDVI20() {
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
       axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id
-      ,{
-        headers:{
-          "Access-Control-Allow-Origin" : "*"
+        , {
+          headers: {
+            "Content-type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          }
         }
-      }
-    )
+      )
         .then((res) => {
           setLineDataNDVI20({
             labels: getLabelsG(),
@@ -182,7 +186,9 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     }
     return []
   }
-
+  function getLegend() {
+    return legendNDVIMap.length > 0 ? <Legend cropList={legendNDVIMap} /> : <></>
+  }
   function getColor(data) {
     if (data === undefined) return "black"
     return data.crop_color
@@ -200,11 +206,13 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
           {NDVITypes.map(({ value, label }, index) => <option value={value}>{label}</option>)}
         </select>
         <Tabs
-          selectedTab={"Карта"}
-          tabs={[
-            {
-              title: "Карта",
-              content: <div style={{ height: '90%' }}>
+        selectedTab={"Карта"} 
+        tabs={[
+          {
+            title: "Карта",
+            active: true,
+            content:
+              <div style={{ height: '90%' }}>
                 <Map
                   {...{
                     center: selectedPolygonData.geometry.coordinates[0][0][0],
@@ -259,14 +267,15 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
                         />
                     )
                   }
-                  {selectedModel == "NDVI 20" ?<Legend cropList={legendNDVIMap} /> : <></>}
+                  {getLegend()}
                 </Map>
               </div>,
-              visible: true
-            },
-            {
-              title: "График NDVI",
-              content: <div>
+          },
+          {
+            title: "График NDVI",
+            active: false,
+            content:
+              <div>
                 <Line
                   type="line"
                   width={160}
@@ -284,11 +293,9 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
                   }}
                   data={(selectedModel == "NDVI 20" ? lineDataNDVI20 : lineDataNDVI10)}
                 />
-              </div>,
-              visible: true
-            }
-          ]}
-        />
+              </div>
+          },
+        ]} />
       </div>
     </div>
   );

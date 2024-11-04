@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import "./style.css";
+import "./Tabs.css";
 
 const reducer = (acc, e) => (e != null ? acc + e.offsetWidth : acc);
 export class Tabs extends Component {
@@ -121,6 +121,10 @@ export class Tabs extends Component {
         </div>
         <div className="tabs-content">
           {this.props.tabs.map(child => {
+            // return <div className={child.title == this.state.selectedTab ? "tabItem active" : "tabItem"}>
+            //   {child.content}
+            // </div>
+            // return //child.title == this.state.selectedTab && child.content
             return child.title == this.state.selectedTab
               ? child.content
               : undefined;
@@ -151,4 +155,4 @@ export class TabItem {
     this.content = c;
   }
 }
-// export default Tabs TabTile;
+export default Tabs; TabTile;
