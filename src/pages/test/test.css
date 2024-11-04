@@ -133,8 +133,8 @@ p {
   height: 30px;
 }
 .fa{
-  font-size: 1.5em;
-  margin: 8px;
+  font-size: 1.5em !important;
+  margin: 8px !important;
 }
 .styled-btn span {
   font-size: 12pt;
