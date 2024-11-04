@@ -5,7 +5,7 @@ import L from "leaflet";
 class Legend extends MapControl {
   createLeafletElement(props) {
     this.crop_list = props.cropList
-   }
+  }
 
   componentDidMount() {
     const legend = L.control({ position: "bottomright" });
@@ -18,7 +18,7 @@ class Legend extends MapControl {
       this.crop_list.map(
         (item) => {
           labels.push(
-            '<i style="background:' + item.crop_color + '"></i> ' +  item.crop_name
+            '<i style="background:' + item.crop_color + '"></i> ' + item.crop_name
           );
         }
       )

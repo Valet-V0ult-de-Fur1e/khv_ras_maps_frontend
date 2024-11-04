@@ -10,15 +10,42 @@ import Legend from "../../elements/mapLegend/mapLegend.js"
 
 const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
   const NDVITypes = [
-    {value: "NDVI 20", label: "NDVI 20"},
-    {value: "NDVI 10", label: "NDVI 10"}
+    { value: "NDVI 20", label: "NDVI 20" },
+    { value: "NDVI 10", label: "NDVI 10" }
   ];
+  const [lastPolygonData, setLastPolygonData] = useState();
   const [savedSelectedPolygonData, setSavedSelectedPolygonData] = useState({});
-  const [NDVI20points, setNDVI20points] = useState(getDataNDVI20());
-  const [lineDataNDVI20, setLineDataNDVI20] = useState({})
-  const [NDVI10points, setNDVI10points] = useState(getDataNDVI10());
-  const [lineDataNDVI10, setLineDataNDVI10] = useState({})
-  const [selectedModel, setSelectedModel] = useState(NDVITypes[0]);
+  const [NDVI20points, setNDVI20points] = useState([]);
+  const [lineDataNDVI20, setLineDataNDVI20] = useState({
+    labels: getLabelsG(),
+    datasets: [
+      {
+        data: getDefaultDataG(),
+        label: "NDVI 20",
+        borderColor: "#3333ff",
+        fill: true,
+        lineTension: 0.5
+      }
+    ]
+  });
+  const [NDVI10points, setNDVI10points] = useState([]);
+  const [lineDataNDVI10, setLineDataNDVI10] = useState({
+    labels: getLabelsG(),
+    datasets: [
+      {
+        data: getDefaultDataG(),
+        label: "NDVI 10",
+        borderColor: "#3333ff",
+        fill: true,
+        lineTension: 0.5
+      }
+    ]
+  });
+  const [selectedModel, setSelectedModel] = useState(NDVITypes[0].value);
+  const [legendNDVIMap, setLegendNDVIMap] = useState([{
+    "crop_name": "null",
+    "crop_color": " #000000"
+  }]);
 
   function getLabelsG() {
     let graphLabels = [];
@@ -28,6 +55,36 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     return graphLabels;
   }
 
+  function getDefaultDataG() {
+    let graphLabels = [];
+    for (var ind = 1; ind <= 52; ind++) {
+      graphLabels.push(0);
+    }
+    return graphLabels
+  }
+
+  useEffect(
+    () => {
+      if (lastPolygonData === undefined) {
+        setLastPolygonData(selectedPolygonData)
+        setNDVI20points(getDataNDVI20())
+        setNDVI10points(getDataNDVI10())
+      }
+      else {
+        if (lastPolygonData.id !== selectedPolygonData.id) {
+          setLegendNDVIMap([{
+            "crop_name": "null",
+            "crop_color": " #000000"
+          }]);
+          setNDVI20points(getDataNDVI20())
+          setNDVI10points(getDataNDVI10())
+          setLastPolygonData(selectedPolygonData)
+        }
+      }
+      // if (selectedPolygonData.id) axios.get("https://abgggc.ru/api/v2/get-ndvi/?version=1&year=2021&size=20&id_field=109").then((res) => console.log(res.data))
+    }
+  )
+
   function getDataG(points) {
     let graphLabels = [];
     for (var ind = 1; ind <= 52; ind++) {
@@ -36,7 +93,19 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
     let pointsCount = 0;
     points.map(
       (point) => {
-        pointsCount ++;
+        let findedType = cropList.filter(crop => crop.id === point.properties.id_crop_pixel_result)[0]
+        if (findedType !== undefined && legendNDVIMap.find((element) => element['crop_name'] == findedType.crop_name) === undefined) {
+          setLegendNDVIMap(
+            [
+              ...legendNDVIMap,
+              {
+                "crop_name": cropList.filter(crop => crop.id === point.properties.id_crop_pixel_result)[0]["crop_name"],
+                "crop_color": cropList.filter(crop => crop.id === point.properties.id_crop_pixel_result)[0]["crop_color"]
+              }
+            ]
+          )
+        }
+        pointsCount++;
         for (var ind = 1; ind <= 52; ind++) {
           graphLabels[ind - 1] = graphLabels[ind - 1] + point.properties["ndv" + ind];
         }
@@ -50,7 +119,13 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
 
   function getDataNDVI10() {
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
-      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=10&fi=" + selectedPolygonData.id)
+      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=10&fi=" + selectedPolygonData.id
+      ,{
+        headers:{
+          "Access-Control-Allow-Origin" : "*"
+        }
+      }
+    )
         .then((res) => {
           setLineDataNDVI10({
             labels: getLabelsG(),
@@ -77,9 +152,14 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
 
   function getDataNDVI20() {
     if (selectedPolygonData.id !== undefined && (selectedPolygonData.id !== savedSelectedPolygonData.id)) {
-      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id)
+      axios.get(getServerAPIURL() + "/api/list-of-ndvi/?y=" + selectedPolygonData.properties.year_ + "&v=1&s=20&fi=" + selectedPolygonData.id
+      ,{
+        headers:{
+          "Access-Control-Allow-Origin" : "*"
+        }
+      }
+    )
         .then((res) => {
-          console.log(lineDataNDVI20);
           setLineDataNDVI20({
             labels: getLabelsG(),
             datasets: [
@@ -104,7 +184,6 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
   }
 
   function getColor(data) {
-    // console.log(data)
     if (data === undefined) return "black"
     return data.crop_color
   }
@@ -118,7 +197,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
       <div className="modal__content" onClick={e => e.stopPropagation()}>
         <div></div>
         <select onChange={UpdateModel} className="selecterButton">
-          {NDVITypes.map(({value, label}, index) => <option value={value}>{label}</option>)}
+          {NDVITypes.map(({ value, label }, index) => <option value={value}>{label}</option>)}
         </select>
         <Tabs
           selectedTab={"Карта"}
@@ -180,7 +259,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
                         />
                     )
                   }
-                  {cropList.length > 0 ? <Legend cropList={cropList}/> : <></>}
+                  {selectedModel == "NDVI 20" ?<Legend cropList={legendNDVIMap} /> : <></>}
                 </Map>
               </div>,
               visible: true
@@ -188,28 +267,23 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
             {
               title: "График NDVI",
               content: <div>
-                {
-                  savedSelectedPolygonData.id ? <div>
-                    <Line
-                      type="line"
-                      width={160}
-                      height={60}
-                      options={{
-                        title: {
-                          display: true,
-                          text: "график " + selectedModel,
-                          fontSize: 20
-                        },
-                        legend: {
-                          display: true, //Is the legend shown?
-                          position: "top" //Position of the legend.
-                        }
-                      }}
-                      data={(selectedModel == "NDVI 20" ? lineDataNDVI20 : lineDataNDVI10)}
-                    /> </div>
-                    :
-                    <></>
-                }
+                <Line
+                  type="line"
+                  width={160}
+                  height={60}
+                  options={{
+                    title: {
+                      display: true,
+                      text: "график " + selectedModel,
+                      fontSize: 20
+                    },
+                    legend: {
+                      display: true, //Is the legend shown?
+                      position: "top" //Position of the legend.
+                    }
+                  }}
+                  data={(selectedModel == "NDVI 20" ? lineDataNDVI20 : lineDataNDVI10)}
+                />
               </div>,
               visible: true
             }
