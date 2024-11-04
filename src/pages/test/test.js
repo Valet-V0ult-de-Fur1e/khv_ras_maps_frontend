@@ -330,7 +330,7 @@ const TestHome = () => {
         <SidebarTab id="settings" header="Settings" icon="fa fa-cog" anchor="bottom">
           <p><input type="checkbox" defaultChecked={showSatelliteImageFlag} name="myCheckbox" onClick={() => { setShowSatelliteImageFlag(!showSatelliteImageFlag); }} /> Отобразить спутниковую подложку</p>
           <p><input type="checkbox" defaultChecked={showSatelliteImageIconsFlag} name="myCheckbox" onClick={() => { setShowSatelliteImagIconsFlag(!showSatelliteImageIconsFlag); }} /> Отобразить вспомогательные знаке на спутниковой подложке</p>
-          <p><button onClick={UpdateMapLegendFlag}>{showMapLegendFlag? "скрыть легенду карты" : "показать легенду карты"}</button></p>
+          {/* <p><button onClick={UpdateMapLegendFlag}>{showMapLegendFlag? "скрыть легенду карты" : "показать легенду карты"}</button></p> */}
         </SidebarTab>
       </Sidebar>
       <MainMap
@@ -349,6 +349,8 @@ const TestHome = () => {
         editModFlag={editModFlag}
 
         cropList={listOfCrops}
+
+        canShowLegend={showMapLegendFlag}
       />
     </div>
   )

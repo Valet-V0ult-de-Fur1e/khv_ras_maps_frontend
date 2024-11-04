@@ -6,7 +6,7 @@ import { Map, TileLayer, Polygon, LayerGroup, LayersControl, Circle, Popup } fro
 import { Chart as ChartJS } from 'chart.js/auto'
 import { Line } from "react-chartjs-2";
 import { Tabs, TabItem } from "../../elements/tabScroll/tabScroll.js";
-// import Legend from "../../elements/mapLegend/mapLegend.js"
+import Legend from "../../elements/mapLegend/mapLegend.js"
 
 const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
   const NDVITypes = [
@@ -180,6 +180,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData }) => {
                         />
                     )
                   }
+                  {cropList.length > 0 ? <Legend cropList={cropList}/> : <></>}
                 </Map>
               </div>,
               visible: true

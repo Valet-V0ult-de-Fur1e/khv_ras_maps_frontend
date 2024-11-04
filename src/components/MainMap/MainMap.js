@@ -4,6 +4,7 @@ import "leaflet-editable";
 import { EditControl } from "react-leaflet-draw";
 import NDVIPopup from '../NDVIPopup/NDVIPopup';
 import Legend from "../../elements/mapLegend/mapLegend.js"
+import "./styles.css"
 
 let mainMapData = [];
 let userMapData = [];
@@ -247,7 +248,7 @@ const MainMap = (props) => {
             <></>
           }
         </LayersControl>
-        <Legend/>
+        {props.cropList.length > 0 ? <Legend cropList={props.cropList}/> : <></>}
       </Map>
       {
         selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} cropList={props.cropList} selectedPolygonData={selectedNDVIPolygon} /> : <></>
