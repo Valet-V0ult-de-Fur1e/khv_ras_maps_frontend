@@ -1,4 +1,4 @@
-const getServerAPIURL = (isTest=false) => {
+const getServerAPIURL = (isTest=true) => {
     return isTest ? "https://abgggc.ru": "https://195.133.198.89"
 }
 
