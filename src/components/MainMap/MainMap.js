@@ -220,7 +220,7 @@ const MainMap = (props) => {
         axios.get(getServerAPIURL() + "/api/v2/get-field-info/?id_field=" + selectedPolygonID + "&year=" + props.selectedYear).then(
           (response) => {
             setSelectedPolygonData(response.data.data[0]);
-            // console.log(response.data.data[0]);
+            console.log(response.data.data[0]);
             setLastSelectedPolygonID(selectedPolygonID)
           }
         )
@@ -279,19 +279,16 @@ const MainMap = (props) => {
                     fillOpacity={0.4}
                   >
                     <Popup>
-                      {/* {
-
-                        () => {
-                          if (n.id === selectedPolygonID) {
-                            return <div><p>Описание: {selectedPolygonData.comment}</p>
-                              <p>Площадь: {selectedPolygonData.area}</p>
-                              <p>Культура план: {getCropPlan(selectedPolygonData.id_crop_plan)}</p>
-                              <p>Культура факт: {getCropFact(selectedNDVIPolygon.id_crop_fact)}</p>
-                              <p>Год:{selectedYear}</p></div>
-                          }
-
-                        }
-                      } */}
+                      {
+                        n.id === selectedPolygonID ? <div>
+                          <p>Описание: {selectedPolygonData.comment}</p>
+                          <p>Площадь: {selectedPolygonData.area}</p>
+                          <p>Культура план: {getCropPlan(selectedPolygonData.id_crop_plan)}</p>
+                          <p>Культура факт: {getCropFact(n.id_crop_fact)}</p>
+                          <p>Год:{props.selectedYear}</p>
+                        </div> : 
+                        <div></div>
+                      }
                       <button className="classic-btn sidebar__btn-filter" onClick={(e) => { setNDVIWinIsActivae(true); setSelectedNDVIPolygon(n) }}>
                         NDVI
                       </button>
