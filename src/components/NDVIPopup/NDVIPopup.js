@@ -70,9 +70,9 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
           "crop_name": "null",
           "crop_color": " #000000"
         }]);
-        setLastPolygonData(selectedPolygonData)
         loadNDVIModelData(setLineDataNDVI20, setNDVI20points, 20, 1)
         loadNDVIModelData(setLineDataNDVI10, setNDVI10points, 10, 1)
+        setLastPolygonData(selectedPolygonData)
         // axios.get("https://abgggc.ru/api/v2/get-ndvi/?year=2021&size=20&version=1&id_field=121").then(res=>console.log(res.data.data))
       }
     }
@@ -153,9 +153,6 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
     }
   }
 
-  function getLegend() {
-    return legendNDVIMap.length > 0 ? <Legend cropList={legendNDVIMap} /> : <></>
-  }
   function getColor(objectCropId) {
     if (objectCropId === null) return "black"
     return cropList.filter(item => item.id === objectCropId)[0].crop_color
@@ -228,7 +225,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
                           />
                       )
                     }
-                    {getLegend()}
+                    <Legend cropList={legendNDVIMap} />
                   </Map>
                 </div>,
             },

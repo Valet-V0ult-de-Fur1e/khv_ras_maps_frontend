@@ -220,7 +220,6 @@ const MainMap = (props) => {
         axios.get(getServerAPIURL() + "/api/v2/get-field-info/?id_field=" + selectedPolygonID + "&year=" + props.selectedYear).then(
           (response) => {
             setSelectedPolygonData(response.data.data[0]);
-            console.log(response.data.data[0]);
             setLastSelectedPolygonID(selectedPolygonID)
           }
         )
@@ -263,8 +262,6 @@ const MainMap = (props) => {
                     ref={ref => mainMapRefs[i] = ref}
                     onClick={(e) => {
                       setSelectedPolygonID(n.id);
-                      console.log(n.id)
-                      console.log(selectedPolygonID)
                       if (props.editModFlag) {
                         e.target.closePopup();
                         EditPolygon(e);
