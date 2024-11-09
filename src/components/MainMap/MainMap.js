@@ -5,6 +5,9 @@ import { EditControl } from "react-leaflet-draw";
 import NDVIPopup from '../NDVIPopup/NDVIPopup';
 import Legend from "../../elements/mapLegend/mapLegend.js"
 import "./styles.css"
+import axios from "axios";
+import getServerAPIURL from "../../elements/serverAPI.js";
+import { renderToString } from 'react-dom/server';
 
 let mainMapData = [];
 let userMapData = [];
@@ -21,6 +24,16 @@ const MainMap = (props) => {
 
   const [NDVIWinIsActivae, setNDVIWinIsActivae] = useState(false);
   const [selectedNDVIPolygon, setSelectedNDVIPolygon] = useState({});
+
+  const [selectedPolygonData, setSelectedPolygonData] = useState({
+    "comment": "",
+    "area": "",
+    "id_crop_sort_plan": null,
+    "id_crop_sort_fact": null,
+  });
+
+  const [selectedPolygonID, setSelectedPolygonID] = useState(-1);
+  const [lastSelectedPolygonID, setLastSelectedPolygonID] = useState(-1);
 
   mainMapData = props.data;
   userMapData = props.userMapData;
@@ -155,6 +168,65 @@ const MainMap = (props) => {
       </>
   }
 
+  function getColor(dataCropID) {
+    if (dataCropID === null || dataCropID === undefined) return "black"
+    return props.cropList.filter(item => item.id === dataCropID)[0].crop_color
+  }
+
+  function getCropPlan(cropPlanID) {
+    let cropPlan = props.cropList.filter(item => item.id === cropPlanID)[0];
+    return cropPlan === undefined ? "-" : cropPlan.crop_name
+  }
+
+  function getCropFact(cropFlagID) {
+    let cropFact = props.cropList.filter(item => item.id === cropFlagID)[0];
+    return cropFact === undefined ? "-" : cropFact.crop_name
+  }
+
+  function showNDVIWindow() {
+
+  }
+
+  function getPopupData(polygonData) {
+    // console.log(polygonData)
+    // "/v2/get-field-info/?id_field=10&year=2019"
+    // https://abgggc.ru/api/v2/get-field-info/?id_field=210&year=2020
+    // console.log(getServerAPIURL() + "/api/v2/get-field-info/?id_field=" + polygonID + "&year=" + props.selectedYear)
+    setSelectedPolygonID(polygonData.id)
+    // axios.get(getServerAPIURL() + "/api/v2/get-field-info/?id_field=" + polygonID + "&year=" + props.selectedYear).then(
+    //   (response) => { 
+    //     setSelectedPolygonData(response.data.data[0]); 
+    //     console.log(response.data.data[0]);
+    //     setSelectedPolygonData(response.data.data[0]); 
+    //   }
+    // )
+    return "<div><p>Описание: "
+      + selectedPolygonData.comment
+      + "</p><p>Площадь: "
+      + selectedPolygonData.area
+      + "</p><p>Культура план: "
+      + getCropPlan(selectedPolygonData.id_crop_plan)
+      + "</p><p>Культура факт: "
+      + getCropFact(polygonData.id_crop_fact)
+      + "</p><p>Год: "
+      + props.selectedYear
+      + "</p></div>"
+      + renderToString(<button className="classic-btn sidebar__btn-filter" onClick={(e) => { console.log(123123); setNDVIWinIsActivae(true); setSelectedNDVIPolygon(polygonData) }}>NDVI</button>)
+  }
+
+  useEffect(
+    () => {
+      if (lastSelectedPolygonID !== selectedPolygonID) {
+        axios.get(getServerAPIURL() + "/api/v2/get-field-info/?id_field=" + selectedPolygonID + "&year=" + props.selectedYear).then(
+          (response) => {
+            setSelectedPolygonData(response.data.data[0]);
+            // console.log(response.data.data[0]);
+            setLastSelectedPolygonID(selectedPolygonID)
+          }
+        )
+      }
+    }
+  )
 
   return (
     <div>
@@ -187,20 +259,40 @@ const MainMap = (props) => {
                   <Polygon
                     key={i}
                     data-id={1}
-                    positions={n.geometry.coordinates}
+                    positions={n.geom.coordinates}
                     ref={ref => mainMapRefs[i] = ref}
-                    onClick={(e) => { EditPolygon(e); if (props.editModFlag) e.target.closePopup() }}
+                    onClick={(e) => {
+                      setSelectedPolygonID(n.id);
+                      console.log(n.id)
+                      console.log(selectedPolygonID)
+                      if (props.editModFlag) {
+                        e.target.closePopup();
+                        EditPolygon(e);
+                      }
+                      // else {
+                      //   e.target.getPopup().setContent(getPopupData(n));
+                      // }
+                    }}
                     onEditabl_edisable={onEditEnd}
                     index={i}
-                    color={(n.properties.crop_info === null) ? n.properties.crop_color : n.properties.crop_info.crop_color}
+                    color={getColor(n.id_crop_fact)}
                     fillOpacity={0.4}
                   >
                     <Popup>
-                      <p>номер реестра: {n.properties.reestr_number}</p>
-                      <p>с\х культура: {(n.properties.crop_info === null) ? n.properties.crop_color : n.properties.crop_info.crop_name}</p>
-                      <p>год: {n.properties.year_}</p>
-                      <p>площадь: {n.properties.area}</p>
-                      <button  className="classic-btn sidebar__btn-filter" onClick={(e) => { setNDVIWinIsActivae(true); setSelectedNDVIPolygon(n) }}>
+                      {/* {
+
+                        () => {
+                          if (n.id === selectedPolygonID) {
+                            return <div><p>Описание: {selectedPolygonData.comment}</p>
+                              <p>Площадь: {selectedPolygonData.area}</p>
+                              <p>Культура план: {getCropPlan(selectedPolygonData.id_crop_plan)}</p>
+                              <p>Культура факт: {getCropFact(selectedNDVIPolygon.id_crop_fact)}</p>
+                              <p>Год:{selectedYear}</p></div>
+                          }
+
+                        }
+                      } */}
+                      <button className="classic-btn sidebar__btn-filter" onClick={(e) => { setNDVIWinIsActivae(true); setSelectedNDVIPolygon(n) }}>
                         NDVI
                       </button>
                     </Popup>
@@ -248,10 +340,10 @@ const MainMap = (props) => {
             <></>
           }
         </LayersControl>
-        {props.cropList.length > 0 ? <Legend cropList={props.cropList}/> : <></>}
+        {props.cropList.length > 0 ? <Legend cropList={props.cropList} /> : <></>}
       </Map>
       {
-        selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} cropList={props.cropList} selectedPolygonData={selectedNDVIPolygon} /> : <></>
+        selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} cropList={props.cropList} selectedPolygonData={selectedNDVIPolygon} selectedYear={props.selectedYear} /> : <></>
       }
     </div>
   )

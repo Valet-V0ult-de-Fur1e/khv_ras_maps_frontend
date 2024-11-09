@@ -15,15 +15,12 @@ import MainMap from '../../components/MainMap/MainMap.js';
 
 import { extractShapes } from "../../elements/utils.js";
 
+import geomDecoding from '../../elements/decodeServerGEOMData.js';
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   if (dataArray.length === 0) {
     axios.get(getServerAPIURL() + apiPath
     ,{
-      // headers:{
-      //   "Content-type": "application/json",
-      //   "Access-Control-Allow-Origin": "*"
-      // }
       cors: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET,PUT,POST",
@@ -40,7 +37,21 @@ function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   }
 }
 
-const TestHome = () => {
+function reverseCoordsSystem(coordsList) {
+  coordsList.coordinates.forEach(
+    (subPolygonPoints) => {
+      subPolygonPoints.forEach(
+        (pointsArray)=> 
+          pointsArray.forEach(
+            pointCoords => pointCoords.reverse()
+          )
+      )
+    }
+  )
+  return coordsList
+}
+
+const MainMapPage = () => {
   const [showSatelliteImageFlag, setShowSatelliteImageFlag] = useState(false);
   const [showSatelliteImageIconsFlag, setShowSatelliteImagIconsFlag] = useState(false);
 
@@ -52,7 +63,7 @@ const TestHome = () => {
   const [listOfYears, setListOfYears] = useState([]);
   const [listOfCrops, setListOfCrops] = useState([]);
 
-  const [selectedYears, setSelectedYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState([]);
   const [selectedCrops, setSelectedCrops] = useState([]);
 
   const [collapsedFlag, setCollapsedFlag] = useState(false);
@@ -83,9 +94,8 @@ const TestHome = () => {
     return selectorData;
   }
 
-  function updateSelectedYears(event) {
-    let newSelectedYears = [];
-    setSelectedYears([event.label]);
+  function updateSelectedYear(event) {
+    setSelectedYear(event.label);
   }
 
   function getSelectorListOfCrops() {
@@ -108,18 +118,12 @@ const TestHome = () => {
   }
 
   function updateSelectedCrops(event) {
-    let newSelectedCrops = [];
-    event.map((item) => newSelectedCrops.push(item.label));
-    setSelectedCrops(newSelectedCrops);
+    setSelectedCrops(event.map((selectedCropName) => listOfCrops.filter(item=> item.crop_name == selectedCropName.label)));
   }
 
   function logout() {
     axios.post(getServerAPIURL() + "/auth/logout/"
     ,{
-      // headers:{
-      //   "Content-type": "application/json",
-      //   "Access-Control-Allow-Origin": "*"
-      // }
       cors: {
         "Access-Control-Allow-Origin": "*"
       }
@@ -131,45 +135,29 @@ const TestHome = () => {
   function loadYearData(year) {
     if (year != 2025) {
       let updatedYearData = allLayersData;
-      axios.get(getServerAPIURL() + "/api/list-of-fields-main/?year=" + year
+      axios.get(getServerAPIURL() + "/api/v2/get-fields-list/?year=" + year
       ,{
-        // headers:{
-        //   "Content-type": "application/json",
-        //   "Access-Control-Allow-Origin": "*"
-        // }
         cors: {
           "Access-Control-Allow-Origin": "*"
         }
       }
     )
         .then((response) => {
-          let loadedServerData = response.data.features
-          // console.log(loadedServerData)
-          loadedServerData.map(
+          let decodedYearData = []
+          response.data.data.map(
             (polygon) => {
-              polygon.geometry.coordinates.forEach((sub_polygons) => {
-                sub_polygons.forEach(
-                  (polygon_coords_arr) => {
-                    let reversedPoints = []
-                    polygon_coords_arr.map(
-                      (polygon_coords) => {
-                        polygon_coords.reverse()
-                        reversedPoints.push(polygon_coords)
-                      }
-                    )
-                    polygon_coords_arr = reversedPoints;
-                  }
-                )
-              }
-              )
+              decodedYearData.push({
+                "id": polygon.id,
+                "id_crop_fact": polygon.id_crop_fact,
+                "geom": reverseCoordsSystem(geomDecoding(polygon.geom))
+              })
             }
           )
-          updatedYearData[year] = loadedServerData;
+          updatedYearData[year] = decodedYearData;
         })
-        .catch((error) => {
-          alert("Превышено время ожидания сервера!")
-        });
-      // console.log(allLayersData)
+        // .catch((error) => {
+        //   alert("Превышено время ожидания сервера!")
+        // });
       setAllLayersData(updatedYearData);
       return updatedYearData[year]
     }
@@ -177,25 +165,17 @@ const TestHome = () => {
   }
 
   function filterDataByCrops(data) {
-    return selectedCrops.length !== 0 ? data.filter(layer => selectedCrops.includes((layer.properties.crop_info === null) ? layer.properties.crop_info : layer.properties.crop_info.crop_name)) : data
+    return selectedCrops.length !== 0 ? data.filter(item => selectedCrops.filter(crop=> crop.id === item.id_crop_fact) !== null) : data
   }
 
   function filterData() {
-    let newFiltredData = [];
-    selectedYears.map(
-      (selectedYear) => {
-        let filtredYearData = filterDataByCrops(
-          (allLayersData[selectedYear].length === 0) ?
-            loadYearData(selectedYear) :
-            allLayersData[selectedYear]
-        )
-        filtredYearData.map((polygon) => {
-          polygon.properties["year_"] = selectedYear;
-        })
-        newFiltredData.push(...filtredYearData)
-      }
-    );
-    setMainMapData(newFiltredData)
+    setMainMapData(
+      filterDataByCrops(
+        allLayersData[selectedYear].length === 0 ?
+        loadYearData(selectedYear) :
+        allLayersData[selectedYear]
+      )
+    )
   }
 
   const importShapeFile = async (e) => {
@@ -255,10 +235,6 @@ const TestHome = () => {
 
   useEffect(
     () => {
-      // var ewkbBuffer = new Buffer(atob("AQEAACDmEAAAsMlSBSTqYEAS9OKlFz9IQA=="))
-      // var geometry = wkx.Geometry.parse(ewkbBuffer);
-      // console.log(geometry.toGeoJSON());
-      // // console.log(require('wkt').Geometry.parse("AQEAACDmEAAAsMlSBSTqYEAS9OKlFz9IQA=="))
       loadFilterDataFromServer(listOfYears, setListOfYears, "/api/get-allowed-years/");
       loadFilterDataFromServer(listOfCrops, setListOfCrops, "/api/list-of-crops/")
       updataAllData()
@@ -328,8 +304,8 @@ const TestHome = () => {
               <p>Год:</p>
               <Select
                 options={getSelectorListOfYears()}
-                onChange={updateSelectedYears}
-                autosize={false}
+                onChange={updateSelectedYear}
+                autosize={true}
                 style={{ width: '100%' }}
               />
             </div>
@@ -339,7 +315,7 @@ const TestHome = () => {
                 isMulti
                 options={getSelectorListOfCrops()}
                 onChange={updateSelectedCrops}
-                autosize={false}
+                autosize={true}
                 style={{ width: '100%' }}
               />
             </div>
@@ -381,10 +357,12 @@ const TestHome = () => {
 
         canShowLegend={showMapLegendFlag}
 
-        selectedYear={selectedYears}
+        selectedYear={selectedYear}
       />
     </div>
   )
 }
 
-export default TestHome
+export default MainMapPage
+
+// /v2/get-fields-list/?year=2021&region=khv
