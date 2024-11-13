@@ -225,7 +225,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
                           />
                       )
                     }
-                    <Legend cropList={legendNDVIMap} />
+                    <Legend cropList={cropList} />
                   </Map>
                 </div>,
             },
