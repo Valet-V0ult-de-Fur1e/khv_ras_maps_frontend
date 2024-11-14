@@ -337,7 +337,7 @@ const MainMap = (props) => {
         {props.cropList.length > 0 ? <Legend cropList={props.cropList} /> : <></>}
       </Map>
       {
-        selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} cropList={props.cropList} selectedPolygonData={selectedNDVIPolygon} selectedYear={props.selectedYear} /> : <></>
+        selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} cropList={props.cropList} selectedPolygonData={selectedNDVIPolygon} selectedYear={props.selectedYear} selectedRegion={props.selectedRegion}/> : <></>
       }
     </div>
   )

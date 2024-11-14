@@ -9,7 +9,7 @@ import { Tabs, TabItem } from "../../elements/tabScroll/tabScroll.js";
 import Legend from "../../elements/mapLegend/mapLegend.js"
 import geomDecoding from '../../elements/decodeServerGEOMData.js';
 
-const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedYear }) => {
+const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedYear, selectedRegion }) => {
   const NDVITypes = [
     { value: "NDVI 20 1", label: "NDVI 20 1" },
     { value: "NDVI 20 2", label: "NDVI 20 2" },
@@ -95,7 +95,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
   )
 
   function loadNDVIModelData(setLineDataNDVIModel, setNDVIModelPoints, modelSize, modelVersion) {
-    let urlReq1 = getServerAPIURL() + "/api/v2/get-ndvi/?year=" + selectedYear + "&size=" + modelSize + "&version=" + modelVersion + "&id_field=" + selectedPolygonData.id
+    let urlReq1 = getServerAPIURL() + "/api/v2/get-ndvi/?year=" + selectedYear + "&size=" + modelSize + "&version=" + modelVersion + "&id_field=" + selectedPolygonData.id + "&region=" + selectedRegion
     let haveData = true
     axios.get(
       urlReq1
@@ -138,7 +138,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
         }
       )
     if (haveData) {
-      let urlReq2 = getServerAPIURL() + "/api/v2/get-ndvi-mean/?year=" + selectedYear + "&version=" + modelVersion + "&size=" + modelSize + "&id_field=" + selectedPolygonData.id
+      let urlReq2 = getServerAPIURL() + "/api/v2/get-ndvi-mean/?year=" + selectedYear + "&version=" + modelVersion + "&size=" + modelSize + "&id_field=" + selectedPolygonData.id + "&region=" + selectedRegion
       axios.get(
         urlReq2
         , {

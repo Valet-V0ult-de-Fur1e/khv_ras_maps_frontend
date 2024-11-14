@@ -20,14 +20,14 @@ import geomDecoding from '../../elements/decodeServerGEOMData.js';
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   if (dataArray.length === 0) {
     axios.get(getServerAPIURL() + apiPath
-    ,{
-      cors: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,PUT,POST",
-        "Access-Control-Allow-Headers": "Authorization,X-My-Token"
+      , {
+        cors: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,PUT,POST",
+          "Access-Control-Allow-Headers": "Authorization,X-My-Token"
+        }
       }
-    }
-  ).
+    ).
       then((response) => {
         setDataArrayFunc(response.data.data);
       }).
@@ -41,7 +41,7 @@ function reverseCoordsSystem(coordsList) {
   coordsList.coordinates.forEach(
     (subPolygonPoints) => {
       subPolygonPoints.forEach(
-        (pointsArray)=> 
+        (pointsArray) =>
           pointsArray.forEach(
             pointCoords => pointCoords.reverse()
           )
@@ -60,9 +60,17 @@ const MainMapPage = () => {
   const [editModFlag, setEditModFlag] = useState(false);
   const [showMapLegendFlag, setShowMapLegendFlag] = useState(true);
 
+  const [listOfReg, setListOfReg] = useState([
+    { label: "Хабаровский край", value: "khv" },
+    { label: "ЕАО", value: "eao" },
+    { label: "Приморье", value: "prm" },
+    { label: "Амурская обл.", value: "amr" }
+  ]);
+
   const [listOfYears, setListOfYears] = useState([]);
   const [listOfCrops, setListOfCrops] = useState([]);
 
+  const [selectedRegion, setSelectedRegion] = useState("khv");
   const [selectedYear, setSelectedYear] = useState([]);
   const [selectedCrops, setSelectedCrops] = useState([]);
 
@@ -98,6 +106,12 @@ const MainMapPage = () => {
     setSelectedYear(event.label);
   }
 
+  function updateSelectedRegion(event) {
+    console.log(selectedRegion)
+    setSelectedRegion(event.value);
+    updataAllData()
+  }
+
   function getSelectorListOfCrops() {
     let selectorData = []
     listOfCrops.map((item) => {
@@ -118,30 +132,30 @@ const MainMapPage = () => {
   }
 
   function updateSelectedCrops(event) {
-    setSelectedCrops(event.map((selectedCropName) => listOfCrops.filter(item=> item.crop_name == selectedCropName.label)));
+    setSelectedCrops(event.map((selectedCropName) => listOfCrops.filter(item => item.crop_name == selectedCropName.label)));
   }
 
   function logout() {
     axios.post(getServerAPIURL() + "/auth/logout/"
-    ,{
-      cors: {
-        "Access-Control-Allow-Origin": "*"
+      , {
+        cors: {
+          "Access-Control-Allow-Origin": "*"
+        }
       }
-    }
-  )
+    )
     setUserIsLoginedFlag(false)
   }
 
   function loadYearData(year) {
     if (year != 2025) {
       let updatedYearData = allLayersData;
-      axios.get(getServerAPIURL() + "/api/v2/get-fields-list/?year=" + year
-      ,{
-        cors: {
-          "Access-Control-Allow-Origin": "*"
+      axios.get(getServerAPIURL() + "/api/v2/get-fields-list/?year=" + year + "&region=" + selectedRegion
+        , {
+          cors: {
+            "Access-Control-Allow-Origin": "*"
+          }
         }
-      }
-    )
+      )
         .then((response) => {
           let decodedYearData = []
           response.data.data.map(
@@ -155,9 +169,9 @@ const MainMapPage = () => {
           )
           updatedYearData[year] = decodedYearData;
         })
-        // .catch((error) => {
-        //   alert("Превышено время ожидания сервера!")
-        // });
+      .catch((error) => {
+        alert("Превышено время ожидания сервера!")
+      });
       setAllLayersData(updatedYearData);
       return updatedYearData[year]
     }
@@ -165,15 +179,15 @@ const MainMapPage = () => {
   }
 
   function filterDataByCrops(data) {
-    return selectedCrops.length !== 0 ? data.filter(item => selectedCrops.filter(crop=> crop.id === item.id_crop_fact) !== null) : data
+    return selectedCrops.length !== 0 ? data.filter(item => selectedCrops.filter(crop => crop.id === item.id_crop_fact) !== null) : data
   }
 
   function filterData() {
     setMainMapData(
       filterDataByCrops(
         allLayersData[selectedYear].length === 0 ?
-        loadYearData(selectedYear) :
-        allLayersData[selectedYear]
+          loadYearData(selectedYear) :
+          allLayersData[selectedYear]
       )
     )
   }
@@ -301,24 +315,37 @@ const MainMapPage = () => {
           <div className="sidebar__filters">
             <h5>Фильтрация</h5>
             <div className="sidebar__filter-block">
-              <p>Год:</p>
+              <p>Регион:</p>
               <Select
-                options={getSelectorListOfYears()}
-                onChange={updateSelectedYear}
+                options={listOfReg}
+                onChange={updateSelectedRegion}
                 autosize={true}
                 style={{ width: '100%' }}
               />
             </div>
-            <div className="sidebar__filter-block">
-              <p>Культура:</p>
-              <Select
-                isMulti
-                options={getSelectorListOfCrops()}
-                onChange={updateSelectedCrops}
-                autosize={true}
-                style={{ width: '100%' }}
-              />
-            </div>
+            {
+              selectedRegion === "" ? <></> : <div>
+                <div className="sidebar__filter-block">
+                  <p>Год:</p>
+                  <Select
+                    options={getSelectorListOfYears()}
+                    onChange={updateSelectedYear}
+                    autosize={true}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div className="sidebar__filter-block">
+                  <p>Культура:</p>
+                  <Select
+                    isMulti
+                    options={getSelectorListOfCrops()}
+                    onChange={updateSelectedCrops}
+                    autosize={true}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+              </div>
+            }
             <button className="classic-btn sidebar__btn-filter" onClick={filterData}>
               Показать
             </button>
@@ -326,11 +353,11 @@ const MainMapPage = () => {
         </SidebarTab>
         <SidebarTab id="layers" header="Layers" icon="fa fa-file-image-o">
           <p><input type="checkbox" defaultChecked={editModFlag} name="myCheckbox" onClick={() => { setEditModFlag(!editModFlag); }} /> Режим редактирования</p>
-          <p>выбор слоя <select onChange={e=>setSelectedFileToSave(e.target.value)}>
+          <p>выбор слоя <select onChange={e => setSelectedFileToSave(e.target.value)}>
             <option value="server">Сервер вц</option>
             <option value="user">Пользовательский</option>
           </select></p>
-          <p>имя сохраняемого файла <input type='text' onChange={e=>setSelectedFileName(e.target.value)}></input></p>
+          <p>имя сохраняемого файла <input type='text' onChange={e => setSelectedFileName(e.target.value)}></input></p>
         </SidebarTab>
         <SidebarTab id="settings" header="Settings" icon="fa fa-cog" anchor="bottom">
           <p><input type="checkbox" defaultChecked={showSatelliteImageFlag} name="myCheckbox" onClick={() => { setShowSatelliteImageFlag(!showSatelliteImageFlag); }} /> Отобразить спутниковую подложку</p>
@@ -358,6 +385,7 @@ const MainMapPage = () => {
         canShowLegend={showMapLegendFlag}
 
         selectedYear={selectedYear}
+        selectedRegion={selectedRegion}
       />
     </div>
   )
