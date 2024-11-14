@@ -11,12 +11,13 @@ import geomDecoding from '../../elements/decodeServerGEOMData.js';
 
 const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedYear }) => {
   const NDVITypes = [
-    { value: "NDVI 20", label: "NDVI 20" },
-    { value: "NDVI 10", label: "NDVI 10" }
+    { value: "NDVI 20 1", label: "NDVI 20 1" },
+    { value: "NDVI 20 2", label: "NDVI 20 2" },
+    { value: "NDVI 10 1", label: "NDVI 10 1" }
   ];
   const [lastPolygonData, setLastPolygonData] = useState({ "id": -1 });
-  const [NDVI20points, setNDVI20points] = useState([]);
-  const [lineDataNDVI20, setLineDataNDVI20] = useState({
+  const [NDVI201points, setNDVI201points] = useState([]);
+  const [lineDataNDVI201, setLineDataNDVI201] = useState({
     labels: getLabelsG(),
     datasets: [
       {
@@ -28,8 +29,21 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
       }
     ]
   });
-  const [NDVI10points, setNDVI10points] = useState([]);
-  const [lineDataNDVI10, setLineDataNDVI10] = useState({
+  const [NDVI202points, setNDVI202points] = useState([]);
+  const [lineDataNDVI202, setLineDataNDVI202] = useState({
+    labels: getLabelsG(),
+    datasets: [
+      {
+        data: getDefaultDataG(),
+        label: "NDVI 20",
+        borderColor: "#3333ff",
+        fill: true,
+        lineTension: 0.5
+      }
+    ]
+  });
+  const [NDVI101points, setNDVI101points] = useState([]);
+  const [lineDataNDVI101, setLineDataNDVI101] = useState({
     labels: getLabelsG(),
     datasets: [
       {
@@ -41,6 +55,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
       }
     ]
   });
+
   const [selectedModel, setSelectedModel] = useState(NDVITypes[0].value);
   const [legendNDVIMap, setLegendNDVIMap] = useState([{
     "crop_name": "null",
@@ -70,8 +85,9 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
           "crop_name": "null",
           "crop_color": " #000000"
         }]);
-        loadNDVIModelData(setLineDataNDVI20, setNDVI20points, 20, 1)
-        loadNDVIModelData(setLineDataNDVI10, setNDVI10points, 10, 1)
+        loadNDVIModelData(setLineDataNDVI201, setNDVI201points, 20, 1)
+        loadNDVIModelData(setLineDataNDVI202, setNDVI202points, 20, 2)
+        loadNDVIModelData(setLineDataNDVI101, setNDVI101points, 10, 1)
         setLastPolygonData(selectedPolygonData)
         // axios.get("https://abgggc.ru/api/v2/get-ndvi/?year=2021&size=20&version=1&id_field=121").then(res=>console.log(res.data.data))
       }
@@ -162,6 +178,45 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
     setSelectedModel(e.target.value)
   }
 
+  function getPointsSize(selectedModel) {
+    switch (selectedModel) {
+      case 'NDVI 20 1':
+        return 10;
+      case 'NDVI 10 1':
+        return 5;
+      case 'NDVI 20 2':
+        return 10;
+      default:
+        return 5;
+    }
+  }
+
+  function getPointsToRender(selectedModel) {
+    switch (selectedModel) {
+      case 'NDVI 20 1':
+        return NDVI201points;
+      case 'NDVI 10 1':
+        return NDVI101points;
+      case 'NDVI 20 2':
+        return NDVI202points;
+      default:
+        return NDVI201points;
+    }
+  }
+
+  function getChartData(selectedModel) {
+    switch (selectedModel) {
+      case 'NDVI 20 1':
+        return lineDataNDVI201;
+      case 'NDVI 10 1':
+        return lineDataNDVI101;
+      case 'NDVI 20 2':
+        return lineDataNDVI202;
+      default:
+        return lineDataNDVI201;
+    }
+  }
+
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
       <div className="modal__content" onClick={e => e.stopPropagation()}>
@@ -215,11 +270,11 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
                     >
                     </Polygon>
                     {
-                      (selectedModel == "NDVI 20" ? NDVI20points : NDVI10points).map(
+                      getPointsToRender(selectedModel).map(
                         (point) =>
                           <Circle
                             center={point.geom.coordinates.reverse()}
-                            radius={(selectedModel == "NDVI 20" ? 10 : 5)}
+                            radius={getPointsSize(selectedModel)}
                             color={getColor(point.id_crop_pixel_result)}
                             fillOpacity={0.7}
                           />
@@ -249,7 +304,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
                         position: "top" //Position of the legend.
                       }
                     }}
-                    data={(selectedModel == "NDVI 20" ? lineDataNDVI20 : lineDataNDVI10)}
+                    data={getChartData(selectedModel)}
                   />
                 </div>
             },
