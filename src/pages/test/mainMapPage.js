@@ -70,6 +70,8 @@ const MainMapPage = () => {
   const [listOfYears, setListOfYears] = useState([]);
   const [listOfCrops, setListOfCrops] = useState([]);
 
+  const [lastSelectedRegion, setLastSelectedRegion] = useState('');
+
   const [selectedRegion, setSelectedRegion] = useState("khv");
   const [selectedYear, setSelectedYear] = useState([]);
   const [selectedCrops, setSelectedCrops] = useState([]);
@@ -107,9 +109,7 @@ const MainMapPage = () => {
   }
 
   function updateSelectedRegion(event) {
-    console.log(selectedRegion)
     setSelectedRegion(event.value);
-    updataAllData()
   }
 
   function getSelectorListOfCrops() {
@@ -183,6 +183,7 @@ const MainMapPage = () => {
   }
 
   function filterData() {
+    updataAllData()
     setMainMapData(
       filterDataByCrops(
         allLayersData[selectedYear].length === 0 ?
@@ -253,6 +254,15 @@ const MainMapPage = () => {
       loadFilterDataFromServer(listOfCrops, setListOfCrops, "/api/list-of-crops/")
       updataAllData()
     }, [listOfYears, setListOfYears, listOfCrops, setListOfCrops]
+  )
+
+  useEffect(
+    () => {
+      if (lastSelectedRegion !== selectedRegion) {
+        updataAllData()
+        setLastSelectedRegion(selectedRegion)
+      }
+    }
   )
 
   function UpdateMapLegendFlag() {
