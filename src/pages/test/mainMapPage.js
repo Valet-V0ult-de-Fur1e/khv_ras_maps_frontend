@@ -183,7 +183,9 @@ const MainMapPage = () => {
   }
 
   function filterData() {
-    updataAllData()
+    if (selectedRegion != lastSelectedRegion){
+      updataAllData()
+    }
     setMainMapData(
       filterDataByCrops(
         allLayersData[selectedYear].length === 0 ?
