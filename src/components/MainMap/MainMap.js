@@ -183,44 +183,13 @@ const MainMap = (props) => {
     return cropFact === undefined ? "-" : cropFact.crop_name
   }
 
-  function showNDVIWindow() {
-
-  }
-
-  function getPopupData(polygonData) {
-    // console.log(polygonData)
-    // "/v2/get-field-info/?id_field=10&year=2019"
-    // https://abgggc.ru/api/v2/get-field-info/?id_field=210&year=2020
-    // console.log(getServerAPIURL() + "/api/v2/get-field-info/?id_field=" + polygonID + "&year=" + props.selectedYear)
-    setSelectedPolygonID(polygonData.id)
-    // axios.get(getServerAPIURL() + "/api/v2/get-field-info/?id_field=" + polygonID + "&year=" + props.selectedYear).then(
-    //   (response) => { 
-    //     setSelectedPolygonData(response.data.data[0]); 
-    //     console.log(response.data.data[0]);
-    //     setSelectedPolygonData(response.data.data[0]); 
-    //   }
-    // )
-    return "<div><p>Описание: "
-      + selectedPolygonData.comment
-      + "</p><p>Площадь: "
-      + selectedPolygonData.area
-      + "</p><p>Культура план: "
-      + getCropPlan(selectedPolygonData.id_crop_plan)
-      + "</p><p>Культура факт: "
-      + getCropFact(polygonData.id_crop_fact)
-      + "</p><p>Год: "
-      + props.selectedYear
-      + "</p></div>"
-      + renderToString(<button className="classic-btn sidebar__btn-filter" onClick={(e) => { console.log(123123); setNDVIWinIsActivae(true); setSelectedNDVIPolygon(polygonData) }}>NDVI</button>)
-  }
-
   useEffect(
     () => {
       if (lastSelectedPolygonID !== selectedPolygonID) {
+        setLastSelectedPolygonID(selectedPolygonID)
         axios.get(getServerAPIURL() + "/api/v2/get-field-info/?id_field=" + selectedPolygonID + "&year=" + props.selectedYear).then(
           (response) => {
             setSelectedPolygonData(response.data.data[0]);
-            setLastSelectedPolygonID(selectedPolygonID)
           }
         )
       }
@@ -261,7 +230,6 @@ const MainMap = (props) => {
                     positions={n.geom.coordinates}
                     ref={ref => mainMapRefs[i] = ref}
                     onClick={(e) => {
-                      console.log(selectedPolygonData)
                       setSelectedPolygonID(n.id);
                       if (props.editModFlag) {
                         e.target.closePopup();

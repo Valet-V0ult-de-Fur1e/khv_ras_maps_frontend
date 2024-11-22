@@ -8,6 +8,7 @@ import { Line } from "react-chartjs-2";
 import { Tabs, TabItem } from "../../elements/tabScroll/tabScroll.js";
 import Legend from "../../elements/mapLegend/mapLegend.js"
 import geomDecoding from '../../elements/decodeServerGEOMData.js';
+import NDVIMap from "../NDVIMap/NDVIMap.js";
 
 const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedYear, selectedRegion }) => {
   const NDVITypes = [
@@ -191,7 +192,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
     }
   }
 
-  function getPointsToRender(selectedModel) {
+  function getPointsToRender() {
     switch (selectedModel) {
       case 'NDVI 20 1':
         return NDVI201points;
@@ -204,7 +205,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
     }
   }
 
-  function getChartData(selectedModel) {
+  function getChartData() {
     switch (selectedModel) {
       case 'NDVI 20 1':
         return lineDataNDVI201;
@@ -215,6 +216,23 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
       default:
         return lineDataNDVI201;
     }
+  }
+
+  const renderPoints = () => {
+    return <div>
+      {
+        getPointsToRender().map(
+          (point, ind) =>
+            <Circle
+              key={ind}
+              center={[point.geom.coordinates[1], point.geom.coordinates[0]]}
+              radius={getPointsSize(selectedModel)}
+              color={getColor(point.id_crop_pixel_result)}
+              fillOpacity={0.7}
+            />
+        )
+      }
+    </div>
   }
 
   return (
@@ -231,58 +249,11 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
               active: true,
               content:
                 <div style={{ height: '90%' }}>
-                  <Map
-                    {...{
-                      center: selectedPolygonData.geom.coordinates[0][0][0],
-                      zoom: 15,
-                      editable: true,
-                    }
-                    }
-                  >
-                    <LayersControl>
-                      <LayersControl.BaseLayer name="Open Street Map">
-                        <TileLayer
-                          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                      </LayersControl.BaseLayer>
-                      <LayersControl.BaseLayer checked name="Google Map">
-                        <TileLayer
-                          attribution="Google Maps"
-                          url="https://www.google.cn/maps/vt?lyrs=m@189&gl=cn&x={x}&y={y}&z={z}"
-                        />
-                      </LayersControl.BaseLayer>
-                      <LayersControl.BaseLayer name="Google Map Satellite">
-                        <LayerGroup>
-                          <TileLayer
-                            attribution="Google Maps Satellite"
-                            url="https://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
-                          />
-                          <TileLayer url="https://www.google.cn/maps/vt?lyrs=y@189&gl=cn&x={x}&y={y}&z={z}" />
-                        </LayerGroup>
-                      </LayersControl.BaseLayer>
-                    </LayersControl>
-                    <Polygon
-                      key={0}
-                      positions={selectedPolygonData.geom.coordinates}
-                      color={getColor(selectedPolygonData.id_crop_fact)}
-                      fillOpacity={0.5}
-                    >
-                    </Polygon>
-                    {
-                      getPointsToRender(selectedModel).map(
-                        (point, ind) =>
-                          <Circle
-                            key={ind}
-                            center={point.geom.coordinates.reverse()}
-                            radius={getPointsSize(selectedModel)}
-                            color={getColor(point.id_crop_pixel_result)}
-                            fillOpacity={0.7}
-                          />
-                      )
-                    }
-                    <Legend cropList={cropList} />
-                  </Map>
+                  <NDVIMap
+                    cropList={cropList}
+                    points={renderPoints()}
+                    selectedPolygonData={selectedPolygonData}
+                  />
                 </div>,
             },
             {
@@ -305,7 +276,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
                         position: "top" //Position of the legend.
                       }
                     }}
-                    data={getChartData(selectedModel)}
+                    data={getChartData()}
                   />
                 </div>
             },

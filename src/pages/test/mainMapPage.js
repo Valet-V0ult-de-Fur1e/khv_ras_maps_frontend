@@ -255,11 +255,6 @@ const MainMapPage = () => {
     }, [listOfYears, setListOfYears, listOfCrops, setListOfCrops]
   )
 
-  useEffect(
-    () => {
-      console.log(isLoading)
-    }
-  )
 
   function UpdateMapLegendFlag() {
     setShowMapLegendFlag(!showMapLegendFlag)
