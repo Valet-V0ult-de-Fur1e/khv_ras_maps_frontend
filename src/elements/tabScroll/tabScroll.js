@@ -120,13 +120,13 @@ export class Tabs extends Component {
           </div>
         </div>
         <div className="tabs-content">
-          {this.props.tabs.map(child => {
+          {this.props.tabs.map((child, i) => {
             // return <div className={child.title == this.state.selectedTab ? "tabItem active" : "tabItem"}>
             //   {child.content}
             // </div>
             // return //child.title == this.state.selectedTab && child.content
             return child.title == this.state.selectedTab
-              ? child.content
+              ? <div key={i}>{child.content}</div>
               : undefined;
           })}
         </div>

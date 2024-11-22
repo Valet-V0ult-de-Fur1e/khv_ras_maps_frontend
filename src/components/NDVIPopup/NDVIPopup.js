@@ -220,7 +220,6 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
       <div className="modal__content" onClick={e => e.stopPropagation()}>
-        <div></div>
         <select onChange={UpdateModel} className="selecterButton">
           {NDVITypes.map(({ value, label }, index) => <option value={value}>{label}</option>)}
         </select>
@@ -264,6 +263,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
                       </LayersControl.BaseLayer>
                     </LayersControl>
                     <Polygon
+                      key={0}
                       positions={selectedPolygonData.geom.coordinates}
                       color={getColor(selectedPolygonData.id_crop_fact)}
                       fillOpacity={0.5}
@@ -271,8 +271,9 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
                     </Polygon>
                     {
                       getPointsToRender(selectedModel).map(
-                        (point) =>
+                        (point, ind) =>
                           <Circle
+                            key={ind}
                             center={point.geom.coordinates.reverse()}
                             radius={getPointsSize(selectedModel)}
                             color={getColor(point.id_crop_pixel_result)}

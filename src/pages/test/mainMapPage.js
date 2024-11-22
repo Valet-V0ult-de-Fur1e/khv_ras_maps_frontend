@@ -72,8 +72,8 @@ const MainMapPage = () => {
 
   const [lastSelectedRegion, setLastSelectedRegion] = useState('');
 
-  const [selectedRegion, setSelectedRegion] = useState("khv");
-  const [selectedYear, setSelectedYear] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
   const [selectedCrops, setSelectedCrops] = useState([]);
 
   const [collapsedFlag, setCollapsedFlag] = useState(false);
@@ -89,6 +89,9 @@ const MainMapPage = () => {
 
   const [selectedFileToSave, setSelectedFileToSave] = useState("server");
   const [savedFileName, setSelectedFileName] = useState("");
+
+  const [isLoading, setIsLoading] = useState(false);
+
 
   const fileInputRef = useRef();
 
@@ -109,6 +112,17 @@ const MainMapPage = () => {
   }
 
   function updateSelectedRegion(event) {
+    if (lastSelectedRegion != event.value) {
+      setIsLoading(true)
+      try {
+        setAllLayersData({})
+        fetchDataSelectedYear(event.value)
+      }
+      catch (err) { }
+      finally {
+        setIsLoading(false)
+      }
+    }
     setSelectedRegion(event.value);
   }
 
@@ -146,53 +160,28 @@ const MainMapPage = () => {
     setUserIsLoginedFlag(false)
   }
 
-  function loadYearData(year) {
-    if (year != 2025) {
-      let updatedYearData = allLayersData;
-      axios.get(getServerAPIURL() + "/api/v2/get-fields-list/?year=" + year + "&region=" + selectedRegion
-        , {
-          cors: {
-            "Access-Control-Allow-Origin": "*"
-          }
-        }
-      )
-        .then((response) => {
-          let decodedYearData = []
-          response.data.data.map(
-            (polygon) => {
-              decodedYearData.push({
-                "id": polygon.id,
-                "id_crop_fact": polygon.id_crop_fact,
-                "geom": reverseCoordsSystem(geomDecoding(polygon.geom))
-              })
-            }
-          )
-          updatedYearData[year] = decodedYearData;
-        })
-      .catch((error) => {
-        alert("Превышено время ожидания сервера!")
-      });
-      setAllLayersData(updatedYearData);
-      return updatedYearData[year]
-    }
-    return [];
-  }
-
   function filterDataByCrops(data) {
     return selectedCrops.length !== 0 ? data.filter(item => selectedCrops.filter(crop => crop.id === item.id_crop_fact) !== null) : data
   }
 
   function filterData() {
-    if (selectedRegion != lastSelectedRegion){
-      updataAllData()
+    try {
+      if (allLayersData[selectedYear].length === 0) {
+        alert("Данных за этот год для данного региона нет")
+      }
+      else {
+        setMainMapData(
+          filterDataByCrops(
+            allLayersData[selectedYear].length === 0 ?
+              loadYearData(selectedYear) :
+              allLayersData[selectedYear]
+          )
+        )
+      }
     }
-    setMainMapData(
-      filterDataByCrops(
-        allLayersData[selectedYear].length === 0 ?
-          loadYearData(selectedYear) :
-          allLayersData[selectedYear]
-      )
-    )
+    catch (err) {
+      alert("Данные по данному региону загружаются.")
+    }
   }
 
   const importShapeFile = async (e) => {
@@ -209,19 +198,62 @@ const MainMapPage = () => {
     });
   }
 
-  function updataAllData() {
-    let newAllLayersData = allLayersData;
-    listOfYears.map(
-      (year) => {
-        if (!(year in allLayersData)) {
-          newAllLayersData[year] = [];
+  const fetchDataSelectedYear = async (region = selectedRegion) => {
+    setIsLoading(true)
+    try {
+      const requests = listOfYears.map(year => axios.get(getServerAPIURL() + "/api/v2/get-fields-list/?year=" + year + "&region=" + region, { cors: { "Access-Control-Allow-Origin": "*" } }))
+      const data = await axios.all(requests);
+      let decodedFullData = {}
+      data.forEach(
+        (req, i) => {
+          let decodedYearData = []
+          req.data.data.map(
+            (polygon) => {
+              decodedYearData.push({
+                "id": polygon.id,
+                "id_crop_fact": polygon.id_crop_fact,
+                "geom": reverseCoordsSystem(geomDecoding(polygon.geom))
+              })
+            }
+          )
+          decodedFullData[listOfYears[i]] = decodedYearData
         }
-        else {
-          loadYearData(year)
-        }
-      }
-    );
-    setAllLayersData(newAllLayersData);
+      )
+      setAllLayersData(decodedFullData)
+    }
+    catch (err) {
+      console.log(err)
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }
+
+  function fecthSelectedRegionData(region = selectedRegion) {
+    const requests = listOfYears.map(year => axios.get(getServerAPIURL() + "/api/v2/get-fields-list/?year=" + year + "&region=" + region, { cors: { "Access-Control-Allow-Origin": "*" } }))
+    fun(region)
+    axios.all(requests).then(
+      axios.spread((...responses) => {
+        let decodedFullData = {}
+        setIsLoading(true)
+        responses.forEach((response, index) => {
+          setIsLoading(true)
+          let decodedYearData = []
+          response.data.data.map(
+            (polygon) => {
+              decodedYearData.push({
+                "id": polygon.id,
+                "id_crop_fact": polygon.id_crop_fact,
+                "geom": reverseCoordsSystem(geomDecoding(polygon.geom))
+              })
+            }
+          )
+          decodedFullData[listOfYears[index]] = decodedYearData
+        })
+        setAllLayersData(decodedFullData)
+        setIsLoading(false)
+      })
+    )
   }
 
   function compliteShapeData() {
@@ -253,18 +285,8 @@ const MainMapPage = () => {
   useEffect(
     () => {
       loadFilterDataFromServer(listOfYears, setListOfYears, "/api/get-allowed-years/");
-      loadFilterDataFromServer(listOfCrops, setListOfCrops, "/api/list-of-crops/")
-      updataAllData()
+      loadFilterDataFromServer(listOfCrops, setListOfCrops, "/api/list-of-crops/");
     }, [listOfYears, setListOfYears, listOfCrops, setListOfCrops]
-  )
-
-  useEffect(
-    () => {
-      if (lastSelectedRegion !== selectedRegion) {
-        updataAllData()
-        setLastSelectedRegion(selectedRegion)
-      }
-    }
   )
 
   function UpdateMapLegendFlag() {
@@ -335,32 +357,42 @@ const MainMapPage = () => {
                 style={{ width: '100%' }}
               />
             </div>
+            <p>{isLoading}</p>
             {
-              selectedRegion === "" ? <></> : <div>
-                <div className="sidebar__filter-block">
-                  <p>Год:</p>
-                  <Select
-                    options={getSelectorListOfYears()}
-                    onChange={updateSelectedYear}
-                    autosize={true}
-                    style={{ width: '100%' }}
-                  />
+              selectedRegion === "" ? <p></p> :
+                <div>
+                  {
+                    isLoading ? <p>Loading...</p> : <div>
+                      <div className="sidebar__filter-block">
+                        <p>Год:</p>
+                        <Select
+                          options={getSelectorListOfYears()}
+                          onChange={updateSelectedYear}
+                          autosize={true}
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+                      <div className="sidebar__filter-block">
+                        <p>Культура:</p>
+                        <Select
+                          isMulti
+                          options={getSelectorListOfCrops()}
+                          onChange={updateSelectedCrops}
+                          autosize={true}
+                          style={{ width: '100%' }}
+                        />
+                      </div>
+                      {
+                        selectedYear === "" ? <></> :
+                          <button className="classic-btn sidebar__btn-filter" onClick={filterData}>
+                            Показать
+                          </button>
+                      }
+
+                    </div>
+                  }
                 </div>
-                <div className="sidebar__filter-block">
-                  <p>Культура:</p>
-                  <Select
-                    isMulti
-                    options={getSelectorListOfCrops()}
-                    onChange={updateSelectedCrops}
-                    autosize={true}
-                    style={{ width: '100%' }}
-                  />
-                </div>
-              </div>
             }
-            <button className="classic-btn sidebar__btn-filter" onClick={filterData}>
-              Показать
-            </button>
           </div>
         </SidebarTab>
         <SidebarTab id="layers" header="Layers" icon="fa fa-file-image-o">

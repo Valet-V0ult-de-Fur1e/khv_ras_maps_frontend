@@ -239,7 +239,7 @@ const MainMap = (props) => {
           <LayersControl.Overlay name="ВЦ ДВО РАН" checked={true}>
             <LayerGroup>
               {props.data.map((n, i) =>
-                <FeatureGroup>
+                <FeatureGroup key={i}>
                   {
                     editingMainMapPolygonId === i ? <EditControl
                       position="topright"
@@ -261,6 +261,7 @@ const MainMap = (props) => {
                     positions={n.geom.coordinates}
                     ref={ref => mainMapRefs[i] = ref}
                     onClick={(e) => {
+                      console.log(selectedPolygonData)
                       setSelectedPolygonID(n.id);
                       if (props.editModFlag) {
                         e.target.closePopup();
@@ -278,13 +279,13 @@ const MainMap = (props) => {
                     <Popup>
                       {
                         n.id === selectedPolygonID ? <div>
-                          <p>Описание: {selectedPolygonData.comment}</p>
+                          {'comment' in selectedPolygonData && <p>Описание: {selectedPolygonData.comment}</p>}
                           <p>Площадь: {selectedPolygonData.area}</p>
                           <p>Культура план: {getCropPlan(selectedPolygonData.id_crop_plan)}</p>
                           <p>Культура факт: {getCropFact(n.id_crop_fact)}</p>
                           <p>Год:{props.selectedYear}</p>
-                        </div> : 
-                        <div></div>
+                        </div> :
+                          <div></div>
                       }
                       <button className="classic-btn sidebar__btn-filter" onClick={(e) => { setNDVIWinIsActivae(true); setSelectedNDVIPolygon(n) }}>
                         NDVI
@@ -337,7 +338,7 @@ const MainMap = (props) => {
         {props.cropList.length > 0 ? <Legend cropList={props.cropList} /> : <></>}
       </Map>
       {
-        selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} cropList={props.cropList} selectedPolygonData={selectedNDVIPolygon} selectedYear={props.selectedYear} selectedRegion={props.selectedRegion}/> : <></>
+        selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} cropList={props.cropList} selectedPolygonData={selectedNDVIPolygon} selectedYear={props.selectedYear} selectedRegion={props.selectedRegion} /> : <></>
       }
     </div>
   )
