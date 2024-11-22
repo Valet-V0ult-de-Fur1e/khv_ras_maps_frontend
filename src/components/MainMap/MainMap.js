@@ -267,9 +267,6 @@ const MainMap = (props) => {
                         e.target.closePopup();
                         EditPolygon(e);
                       }
-                      // else {
-                      //   e.target.getPopup().setContent(getPopupData(n));
-                      // }
                     }}
                     onEditabl_edisable={onEditEnd}
                     index={i}
@@ -278,8 +275,8 @@ const MainMap = (props) => {
                   >
                     <Popup>
                       {
-                        n.id === selectedPolygonID ? <div>
-                          {'comment' in selectedPolygonData && <p>Описание: {selectedPolygonData.comment}</p>}
+                        n.id === selectedPolygonID ? selectedPolygonData && <div>
+                          <p>Описание: {selectedPolygonData.comment}</p>
                           <p>Площадь: {selectedPolygonData.area}</p>
                           <p>Культура план: {getCropPlan(selectedPolygonData.id_crop_plan)}</p>
                           <p>Культура факт: {getCropFact(n.id_crop_fact)}</p>

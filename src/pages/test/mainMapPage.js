@@ -113,15 +113,8 @@ const MainMapPage = () => {
 
   function updateSelectedRegion(event) {
     if (lastSelectedRegion != event.value) {
-      setIsLoading(true)
-      try {
-        setAllLayersData({})
-        fetchDataSelectedYear(event.value)
-      }
-      catch (err) { }
-      finally {
-        setIsLoading(false)
-      }
+      setAllLayersData({})
+      fetchDataSelectedYear(event.value)
     }
     setSelectedRegion(event.value);
   }
@@ -229,33 +222,6 @@ const MainMapPage = () => {
     }
   }
 
-  function fecthSelectedRegionData(region = selectedRegion) {
-    const requests = listOfYears.map(year => axios.get(getServerAPIURL() + "/api/v2/get-fields-list/?year=" + year + "&region=" + region, { cors: { "Access-Control-Allow-Origin": "*" } }))
-    fun(region)
-    axios.all(requests).then(
-      axios.spread((...responses) => {
-        let decodedFullData = {}
-        setIsLoading(true)
-        responses.forEach((response, index) => {
-          setIsLoading(true)
-          let decodedYearData = []
-          response.data.data.map(
-            (polygon) => {
-              decodedYearData.push({
-                "id": polygon.id,
-                "id_crop_fact": polygon.id_crop_fact,
-                "geom": reverseCoordsSystem(geomDecoding(polygon.geom))
-              })
-            }
-          )
-          decodedFullData[listOfYears[index]] = decodedYearData
-        })
-        setAllLayersData(decodedFullData)
-        setIsLoading(false)
-      })
-    )
-  }
-
   function compliteShapeData() {
     let loadedServerData = userMapData
     loadedServerData.map(
@@ -287,6 +253,12 @@ const MainMapPage = () => {
       loadFilterDataFromServer(listOfYears, setListOfYears, "/api/get-allowed-years/");
       loadFilterDataFromServer(listOfCrops, setListOfCrops, "/api/list-of-crops/");
     }, [listOfYears, setListOfYears, listOfCrops, setListOfCrops]
+  )
+
+  useEffect(
+    () => {
+      console.log(isLoading)
+    }
   )
 
   function UpdateMapLegendFlag() {
