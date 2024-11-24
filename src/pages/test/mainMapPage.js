@@ -154,7 +154,9 @@ const MainMapPage = () => {
   }
 
   function filterDataByCrops(data) {
-    return selectedCrops.length !== 0 ? data.filter(item => selectedCrops.filter(crop => crop.id === item.id_crop_fact) !== null) : data
+    let cropIdList = []
+    selectedCrops.map((crop)=>{cropIdList.push(crop[0].id)})
+    return selectedCrops.length !== 0 ? data.filter(item => cropIdList.indexOf(item.id_crop_fact)!==-1) : data
   }
 
   function filterData() {
@@ -165,9 +167,7 @@ const MainMapPage = () => {
       else {
         setMainMapData(
           filterDataByCrops(
-            allLayersData[selectedYear].length === 0 ?
-              loadYearData(selectedYear) :
-              allLayersData[selectedYear]
+            allLayersData[selectedYear]
           )
         )
       }
