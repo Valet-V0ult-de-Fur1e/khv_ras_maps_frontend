@@ -7,17 +7,22 @@ import Legend from "../../elements/mapLegend/mapLegend.js"
 import "./styles.css"
 import axios from "axios";
 import getServerAPIURL from "../../elements/serverAPI.js";
-import { renderToString } from 'react-dom/server';
 
 let mainMapData = [];
 let userMapData = [];
 
 const MainMap = (props) => {
-  const mapOptions = {
-    center: [48.5189, 135.2786],
-    zoom: 11,
-    editable: true
-  };
+  const mapOptions = props.zoomConfig
+  // {
+  //   center: [
+  //     // Math.random() * (50 - 40) + 40,
+  //     // Math.random() * (140 - 130) + 130
+  //     48.5189, 
+  //     135.2786
+  //   ],
+  //   zoom: 11,
+  //   editable: true
+  // };
 
   const [editingMainMapPolygonId, setEditingMainMapPolygonId] = useState(null);
   const [editingUserMapPolygonId, setEditingUserMapPolygonId] = useState(null);
@@ -202,6 +207,7 @@ const MainMap = (props) => {
         {...mapOptions}
         ref={mapRef}
         whenReady={onLoad}
+        onClick={e=>console.log(e)}
       >
         {getTileLayer()}
         <LayersControl>

@@ -67,6 +67,49 @@ const MainMapPage = () => {
     { label: "Амурская обл.", value: "amr" }
   ]);
 
+  const mapZoomList = {
+    "": {
+      center: [
+        52.40241887397332, 
+        137.06079205949928
+      ],
+      zoom: 5,
+      editable: true
+    },
+    "khv": {
+      center: [
+        48.48430069812584, 
+        135.32423704901925
+      ],
+      zoom: 11,
+      editable: true
+    },
+    "eao": {
+      center: [
+        48.68552087440201, 
+        132.9713422863282
+      ],
+      zoom: 10,
+      editable: true
+    },
+    "prm": {
+      center: [
+        44.429857265397246, 
+        132.07821136505473
+      ],
+      zoom: 10,
+      editable: true
+    },
+    "amr": {
+      center: [
+        50.18041592143885, 
+        128.7900031681196
+      ],
+      zoom: 9,
+      editable: true
+    }
+  }
+
   const [listOfYears, setListOfYears] = useState([]);
   const [listOfCrops, setListOfCrops] = useState([]);
 
@@ -161,6 +204,7 @@ const MainMapPage = () => {
 
   function filterData() {
     try {
+      console.log(allLayersData)
       if (allLayersData[selectedYear].length === 0) {
         alert("Данных за этот год для данного региона нет")
       }
@@ -199,6 +243,7 @@ const MainMapPage = () => {
       let decodedFullData = {}
       data.forEach(
         (req, i) => {
+          console.log(req)
           let decodedYearData = []
           req.data.data.map(
             (polygon) => {
@@ -377,6 +422,7 @@ const MainMapPage = () => {
         </SidebarTab>
       </Sidebar>
       <MainMap
+        zoomConfig={mapZoomList[selectedRegion]}
         data={mainMapData}
         userMapData={compliteShapeData()}
 
