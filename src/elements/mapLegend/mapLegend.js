@@ -3,12 +3,11 @@ import { MapControl, withLeaflet } from "react-leaflet";
 import L from "leaflet";
 import { useState, useEffect } from "react";
 
-const Legend = ({ cropList, setStatus, leaflet }) => {
+const Legend = ({ cropList, leaflet }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleCollapse = () => {
     setIsCollapsed(prevState => !prevState);
-    setStatus(!isCollapsed);
   };
 
   useEffect(() => {

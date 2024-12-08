@@ -9,6 +9,7 @@ import { Tabs, TabItem } from "../../elements/tabScroll/tabScroll.js";
 import Legend from "../../elements/mapLegend/mapLegend.js"
 import geomDecoding from '../../elements/decodeServerGEOMData.js';
 import NDVIMap from "../NDVIMap/NDVIMap.js";
+import downloadPolygonNDVIData from "../../elements/NDVIDownloadButton/csvDownloader.js";
 
 const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedYear, selectedRegion }) => {
   const NDVITypes = [
@@ -234,13 +235,15 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
       }
     </div>
   }
-
   return (
     <div className={active ? "modal active" : "modal"} onClick={() => setActive(false)}>
       <div className="modal__content" onClick={e => e.stopPropagation()}>
-        <select onChange={UpdateModel} className="selecterButton">
-          {NDVITypes.map(({ value, label }, index) => <option value={value}>{label}</option>)}
-        </select>
+        <div className="buttonsBlock">
+          {selectedPolygonData.id && downloadPolygonNDVIData(selectedPolygonData.id, selectedYear, selectedModel, selectedRegion)}
+          <select onChange={UpdateModel} className="selectButton">
+            {NDVITypes.map(({ value, label }, index) => <option value={value}>{label}</option>)}
+          </select>
+        </div>
         <Tabs
           selectedTab={"Карта"}
           tabs={[
