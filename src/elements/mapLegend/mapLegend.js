@@ -1,28 +1,47 @@
 import "./styles.css";
-import { MapControl, useLeaflet, withLeaflet } from "react-leaflet";
+import { MapControl, withLeaflet } from "react-leaflet";
 import L from "leaflet";
-import { useEffect } from "react";
-class Legend extends MapControl {
-  createLeafletElement(props) {
-    this.crop_list = props.cropList
-    const MapLegend = L.Control.extend({
-      onAdd: (map) => {
-        const div = L.DomUtil.create("div", "info legend");
-        let labels = [];
-        this.crop_list.map(
-          (item) => {
-            labels.push(
-              '<i style="background:' + item.crop_color + '"></i> ' + item.crop_name
-            );
-          }
-        )
-        div.innerHTML = labels.join("<br>");
-        return div;
-      }
-    })
-    return new MapLegend({ position: 'bottomright' });
-  }
+import { useState, useEffect } from "react";
 
-}
+const Legend = ({ cropList, setStatus, leaflet }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const toggleCollapse = () => {
+    setIsCollapsed(prevState => !prevState);
+    setStatus(!isCollapsed);
+  };
+
+  useEffect(() => {
+    const map = leaflet.map;
+    const MapLegend = L.Control.extend({
+      onAdd: () => {
+        const div = L.DomUtil.create("div", "info legend");
+        const toggleButton = L.DomUtil.create("button", "toggle-btn");
+        toggleButton.innerHTML = isCollapsed ? "▶" : "▼";
+        L.DomEvent.on(toggleButton, "click", toggleCollapse);
+        let labels = cropList.map((item) => {
+          return `<div class="label-item"><i style="background:${item.crop_color}"></i>${item.crop_name}</div>`;
+        });
+        const labelDiv = L.DomUtil.create("div", "labels");
+        labelDiv.classList.toggle('collapsed', isCollapsed);
+        labelDiv.innerHTML = labels.join("");
+        div.appendChild(toggleButton);
+        div.appendChild(labelDiv);
+        return div;
+      },
+
+      onRemove: () => {
+        const toggleButton = L.DomUtil.create("button", "toggle-btn");
+        L.DomEvent.off(toggleButton, "click", toggleCollapse);
+      },
+    });
+    const legendControl = new MapLegend({ position: "bottomright" });
+    map.addControl(legendControl);
+    return () => {
+      map.removeControl(legendControl);
+    };
+  }, [isCollapsed, cropList, leaflet.map]);
+
+  return null;
+};
 
 export default withLeaflet(Legend);

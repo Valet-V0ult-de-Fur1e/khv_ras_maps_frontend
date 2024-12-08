@@ -23,7 +23,6 @@ const MainMap = (props) => {
   //   zoom: 11,
   //   editable: true
   // };
-
   const [editingMainMapPolygonId, setEditingMainMapPolygonId] = useState(null);
   const [editingUserMapPolygonId, setEditingUserMapPolygonId] = useState(null);
 
@@ -40,8 +39,16 @@ const MainMap = (props) => {
   const [selectedPolygonID, setSelectedPolygonID] = useState(-1);
   const [lastSelectedPolygonID, setLastSelectedPolygonID] = useState(-1);
 
+  const [legendIsToggle, setLegendIsToggle] = useState(true)
+
   mainMapData = props.data;
   userMapData = props.userMapData;
+
+  
+  useEffect(
+    ()=>{console.log(legendIsToggle)}
+  )
+
 
   const mapRef = React.createRef();
 
@@ -207,7 +214,7 @@ const MainMap = (props) => {
         {...mapOptions}
         ref={mapRef}
         whenReady={onLoad}
-        onClick={e=>console.log(e)}
+        // onClick={e=>console.log(e)}
       >
         {getTileLayer()}
         <LayersControl>
@@ -306,7 +313,7 @@ const MainMap = (props) => {
             <></>
           }
         </LayersControl>
-        {props.cropList.length > 0 ? <Legend cropList={props.cropList} /> : <></>}
+        {props.cropList.length > 0 ? <Legend cropList={props.cropList} setStatus={setLegendIsToggle} /> : <></>}
       </Map>
       {
         selectedNDVIPolygon.id ? <NDVIPopup active={NDVIWinIsActivae} setActive={setNDVIWinIsActivae} cropList={props.cropList} selectedPolygonData={selectedNDVIPolygon} selectedYear={props.selectedYear} selectedRegion={props.selectedRegion} /> : <></>
