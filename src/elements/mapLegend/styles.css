@@ -1,4 +1,3 @@
-/* Стиль контейнера легенды */
 .info.legend {
   position: relative;
   padding: 10px;
@@ -7,54 +6,52 @@
   /* border: 1px solid rgba(0, 0, 0, 0.2); */
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-height: 500px;  /* Ограничение по высоте */
+  max-height: 500px;
   min-width: 55px;
   min-height: 55px;
   transition: max-height 0.3s ease, padding 0.3s ease;
-  overflow: hidden;  /* Скрывает излишки за пределами контейнера легенды */
+  overflow: hidden;
 }
 
 .toggle-btn {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: transparent;  /* Убираем фон */
-  border: 2px solid #007bff;  /* Добавляем границу */
-  border-radius: 50%;  /* Кнопка круглая */
+  background-color: transparent;
+  border: 2px solid #007bff;
+  border-radius: 50%;
   font-size: 19px;
-  color: #007bff;  /* Цвет стрелочки */
+  color: #007bff;
   cursor: pointer;
-  padding: 0;  /* Убираем отступы */
-  width: 30px;  /* Размер кнопки */
+  padding: 0;
+  width: 30px;
   height: 30px;
-  display: flex;  /* Используем flexbox для центрирования */
-  justify-content: center;  /* Центрируем по горизонтали */
-  align-items: center;  /* Центрируем по вертикали */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   transition: background-color 0.3s ease, transform 0.3s ease;
   z-index: 10;
 }
 
 .toggle-btn:hover {
-  background-color: rgba(0, 123, 255, 0.1);  /* Легкий фон при наведении */
+  background-color: rgba(0, 123, 255, 0.1);
   transform: scale(1.1);
 }
 
 .toggle-btn:focus {
-  outline: none;  /* Убираем обводку при фокусе */
+  outline: none;
 }
 
-/* Стиль для списка меток */
 .info.legend .labels {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 40px;  /* Увеличиваем верхний отступ, чтобы кнопка не перекрывала метки */
-  max-height: 400px;  /* Максимальная высота для блока меток */
-  overflow-y: auto;  /* Включаем вертикальную прокрутку */
+  margin-top: 40px;
+  max-height: 400px;
+  overflow-y: auto;
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* Стиль для кружков с цветами культур */
 .info.legend .labels i {
   width: 20px;
   height: 20px;
@@ -64,18 +61,15 @@
   vertical-align: middle;
 }
 
-/* Стиль для элементов списка меток */
 .info.legend .labels .label-item {
   display: flex;
   align-items: center;
 }
 
-/* Скрытие меток при свернутом состоянии */
 .info.legend .labels.collapsed {
   display: none;
 }
 
-/* Скрытие всего содержимого при свернутом состоянии */
 .info.legend.collapsed {
   padding: 0;
 }
@@ -89,23 +83,21 @@
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
-/* Скроллбар */
 .info.legend .labels::-webkit-scrollbar {
-  width: 8px;  /* Ширина вертикального скроллбара */
+  width: 8px;
 }
 
 .info.legend .labels::-webkit-scrollbar-thumb {
-  background-color: #007bff;  /* Цвет бегунка */
-  border-radius: 4px;  /* Скругленные углы у бегунка */
-  border: 2px solid transparent;  /* Эффект обводки при наведении */
+  background-color: #007bff;
+  border-radius: 4px;
+  border: 2px solid transparent;
 }
 
 .info.legend .labels::-webkit-scrollbar-thumb:hover {
-  background-color: #0056b3;  /* Цвет бегунка при наведении */
+  background-color: #0056b3;
 }
 
-/* Стили для дорожки скроллбара */
 .info.legend .labels::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.1);  /* Цвет дорожки */
-  border-radius: 4px;  /* Скругленные углы дорожки */
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px; 
 }
