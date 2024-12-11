@@ -15,7 +15,9 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
   const NDVITypes = [
     { value: "NDVI 20 1", label: "NDVI 20 1" },
     { value: "NDVI 20 2", label: "NDVI 20 2" },
-    { value: "NDVI 10 1", label: "NDVI 10 1" }
+    { value: "NDVI 10 1", label: "NDVI 10 1" },
+    { value: "NDVI 30 1", label: "NDVI 30 1" },
+    { value: "NDVI 30 2", label: "NDVI 30 2" }
   ];
   const [lastPolygonData, setLastPolygonData] = useState({ "id": -1 });
   const [NDVI201points, setNDVI201points] = useState([]);
@@ -24,7 +26,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
     datasets: [
       {
         data: getDefaultDataG(),
-        label: "NDVI 20",
+        label: "NDVI 20 1",
         borderColor: "#3333ff",
         fill: true,
         lineTension: 0.5
@@ -37,7 +39,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
     datasets: [
       {
         data: getDefaultDataG(),
-        label: "NDVI 20",
+        label: "NDVI 20 2",
         borderColor: "#3333ff",
         fill: true,
         lineTension: 0.5
@@ -50,13 +52,42 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
     datasets: [
       {
         data: getDefaultDataG(),
-        label: "NDVI 10",
+        label: "NDVI 10 1",
         borderColor: "#3333ff",
         fill: true,
         lineTension: 0.5
       }
     ]
   });
+
+  const [NDVI301points, setNDVI301points] = useState([]);
+  const [lineDataNDVI301, setLineDataNDVI301] = useState({
+    labels: getLabelsG(),
+    datasets: [
+      {
+        data: getDefaultDataG(),
+        label: "NDVI 30 1",
+        borderColor: "#3333ff",
+        fill: true,
+        lineTension: 0.5
+      }
+    ]
+  });
+
+  const [NDVI302points, setNDVI302points] = useState([]);
+  const [lineDataNDVI302, setLineDataNDVI302] = useState({
+    labels: getLabelsG(),
+    datasets: [
+      {
+        data: getDefaultDataG(),
+        label: "NDVI 30 2",
+        borderColor: "#3333ff",
+        fill: true,
+        lineTension: 0.5
+      }
+    ]
+  });
+
 
   const [selectedModel, setSelectedModel] = useState(NDVITypes[0].value);
   const [legendNDVIMap, setLegendNDVIMap] = useState([{
@@ -90,6 +121,8 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
         loadNDVIModelData(setLineDataNDVI201, setNDVI201points, 20, 1)
         loadNDVIModelData(setLineDataNDVI202, setNDVI202points, 20, 2)
         loadNDVIModelData(setLineDataNDVI101, setNDVI101points, 10, 1)
+        loadNDVIModelData(setLineDataNDVI301, setNDVI301points, 30, 1)
+        loadNDVIModelData(setLineDataNDVI302, setNDVI302points, 30, 2)
         setLastPolygonData(selectedPolygonData)
         // axios.get("https://abgggc.ru/api/v2/get-ndvi/?year=2021&size=20&version=1&id_field=121").then(res=>console.log(res.data.data))
       }
@@ -188,6 +221,10 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
         return 5;
       case 'NDVI 20 2':
         return 10;
+      case 'NDVI 30 2':
+        return 15;
+      case 'NDVI 30 1':
+        return 15;
       default:
         return 5;
     }
@@ -201,6 +238,10 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
         return NDVI101points;
       case 'NDVI 20 2':
         return NDVI202points;
+      case 'NDVI 30 2':
+        return NDVI302points;
+      case 'NDVI 30 1':
+        return NDVI301points;
       default:
         return NDVI201points;
     }
@@ -214,6 +255,10 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
         return lineDataNDVI101;
       case 'NDVI 20 2':
         return lineDataNDVI202;
+      case 'NDVI 30 2':
+        return lineDataNDVI302;
+      case 'NDVI 30 1':
+        return lineDataNDVI301;
       default:
         return lineDataNDVI201;
     }
