@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import "./login.css"
-import { useLocalStorage } from "../../elements/useLocalStorage.js"
+import { useLocalStorage } from "../../features/useLocalStorage.js"
 import axios from 'axios';
-import getServerAPIURL from "../../elements/serverAPI.js"
+import getServerAPIURL from "../../features/serverAPI.js"
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {

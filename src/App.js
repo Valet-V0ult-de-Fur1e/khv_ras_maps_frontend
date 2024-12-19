@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/login/login";
-import {useLocalStorage} from "./elements/useLocalStorage.js"
+import {useLocalStorage} from "./features/useLocalStorage.js"
 import "./App.css";
 import MainMapPage from './pages/test/mainMapPage.js';
 import NoAuthMapPage from './pages/noAuthPage/mainMapPage.js';

@@ -1,21 +1,20 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { useLocalStorage } from "../../elements/useLocalStorage.js"
+import { useLocalStorage } from "../../features/useLocalStorage.js"
 import { useNavigate } from 'react-router-dom';
-import getServerAPIURL from "../../elements/serverAPI.js"
+import getServerAPIURL from "../../features/serverAPI.js"
 import axios from 'axios';
 import "leaflet-editable";
 import Select from 'react-select';
+import { Sidebar, SidebarTab } from '../../elements/sidebar/sidebar.js';
+import MainMap from '../../components/MainMap/MainMap.js';
+import { extractShapes } from "../../features/utils.js";
+import geomDecoding from '../../features/decodeServerGEOMData.js';
+import UploadFiles from '../../elements/dropAndDrag/FileUpload.js';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./test.css";
 import './TestMap.css';
 
-import { Sidebar, SidebarTab } from '../../elements/sidebar.js';
-import MainMap from '../../components/MainMap/MainMap.js';
-
-import { extractShapes } from "../../elements/utils.js";
-
-import geomDecoding from '../../elements/decodeServerGEOMData.js';
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   if (dataArray.length === 0) {
@@ -112,6 +111,7 @@ const MainMapPage = () => {
 
   const [listOfYears, setListOfYears] = useState([]);
   const [listOfCrops, setListOfCrops] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState(undefined);
 
   const [lastSelectedRegion, setLastSelectedRegion] = useState('');
 
@@ -204,7 +204,6 @@ const MainMapPage = () => {
 
   function filterData() {
     try {
-      console.log(allLayersData)
       if (allLayersData[selectedYear].length === 0) {
         alert("Данных за этот год для данного региона нет")
       }
@@ -243,7 +242,6 @@ const MainMapPage = () => {
       let decodedFullData = {}
       data.forEach(
         (req, i) => {
-          console.log(req)
           let decodedYearData = []
           req.data.data.map(
             (polygon) => {
@@ -406,6 +404,7 @@ const MainMapPage = () => {
                 </div>
             }
           </div>
+          <UploadFiles selectedFiles={selectedFiles} setSelectedFiles={setSelectedFiles}/>
         </SidebarTab>
         <SidebarTab id="layers" header="Layers" icon="fa fa-file-image-o">
           <p><input type="checkbox" defaultChecked={editModFlag} name="myCheckbox" onClick={() => { setEditModFlag(!editModFlag); }} /> Режим редактирования</p>
@@ -443,6 +442,8 @@ const MainMapPage = () => {
 
         selectedYear={selectedYear}
         selectedRegion={selectedRegion}
+
+        selectedImageData={selectedFiles}
       />
     </div>
   )

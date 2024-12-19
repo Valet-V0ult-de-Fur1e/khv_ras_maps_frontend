@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "./NDVIPopup.css"
 import axios from "axios";
-import getServerAPIURL from "../../elements/serverAPI.js"
+import getServerAPIURL from "../../features/serverAPI.js"
 import { Map, TileLayer, Polygon, LayerGroup, LayersControl, Circle, Popup } from "react-leaflet";
 import { Chart as ChartJS } from 'chart.js/auto'
 import { Line } from "react-chartjs-2";
 import { Tabs, TabItem } from "../../elements/tabScroll/tabScroll.js";
 import Legend from "../../elements/mapLegend/mapLegend.js"
-import geomDecoding from '../../elements/decodeServerGEOMData.js';
+import geomDecoding from '../../features/decodeServerGEOMData.js';
 import NDVIMap from "../NDVIMap/NDVIMap.js";
 import downloadPolygonNDVIData from "../../elements/NDVIDownloadButton/csvDownloader.js";
 

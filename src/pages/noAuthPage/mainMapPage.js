@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { useLocalStorage } from "../../elements/useLocalStorage.js"
+import { useLocalStorage } from "../../features/useLocalStorage.js"
 import { useNavigate } from 'react-router-dom';
-import getServerAPIURL from "../../elements/serverAPI.js"
+import getServerAPIURL from "../../features/serverAPI.js"
 import axios from 'axios';
 import "leaflet-editable";
 import Select from 'react-select';
@@ -10,12 +10,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "./test.css";
 import './TestMap.css';
 
-import { Sidebar, SidebarTab } from '../../elements/sidebar.js';
+import { Sidebar, SidebarTab } from '../../elements/sidebar/sidebar.js';
 import MainMap from '../../components/MainMap/MainMap.js';
 
-import { extractShapes } from "../../elements/utils.js";
+import { extractShapes } from "../../features/utils.js";
 
-import geomDecoding from '../../elements/decodeServerGEOMData.js';
+import geomDecoding from '../../features/decodeServerGEOMData.js';
 
 function loadFilterDataFromServer(dataArray, setDataArrayFunc, apiPath) {
   if (dataArray.length === 0) {

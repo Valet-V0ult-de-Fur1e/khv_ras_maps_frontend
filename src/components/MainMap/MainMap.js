@@ -2,27 +2,18 @@ import React, { useEffect, useState } from "react"
 import { Map, TileLayer, FeatureGroup, Polygon, Popup, LayerGroup, LayersControl, ImageOverlay } from "react-leaflet";
 import "leaflet-editable";
 import { EditControl } from "react-leaflet-draw";
-import NDVIPopup from '../NDVIPopup/NDVIPopup';
+import NDVIPopup from "../NDVIPopup/NDVIPopup.js"
 import Legend from "../../elements/mapLegend/mapLegend.js"
 import "./styles.css"
 import axios from "axios";
-import getServerAPIURL from "../../elements/serverAPI.js";
+import getServerAPIURL from "../../features/serverAPI.js";
+import { parseTiffFile } from "../../elements/tiffParcer/tiffParcer.js";
 
 let mainMapData = [];
 let userMapData = [];
 
 const MainMap = (props) => {
   const mapOptions = props.zoomConfig
-  // {
-  //   center: [
-  //     // Math.random() * (50 - 40) + 40,
-  //     // Math.random() * (140 - 130) + 130
-  //     48.5189, 
-  //     135.2786
-  //   ],
-  //   zoom: 11,
-  //   editable: true
-  // };
   const [editingMainMapPolygonId, setEditingMainMapPolygonId] = useState(null);
   const [editingUserMapPolygonId, setEditingUserMapPolygonId] = useState(null);
 
@@ -39,16 +30,8 @@ const MainMap = (props) => {
   const [selectedPolygonID, setSelectedPolygonID] = useState(-1);
   const [lastSelectedPolygonID, setLastSelectedPolygonID] = useState(-1);
 
-  const [legendIsToggle, setLegendIsToggle] = useState(true)
-
   mainMapData = props.data;
   userMapData = props.userMapData;
-
-  
-  useEffect(
-    ()=>{console.log(legendIsToggle)}
-  )
-
 
   const mapRef = React.createRef();
 
@@ -208,17 +191,24 @@ const MainMap = (props) => {
     }
   )
 
+  const handleLayerCreated = (dataUrl, bounds) => {
+    const imageOverlay = L.imageOverlay(dataUrl, bounds);
+    imageOverlay.addTo(mapRef.current);
+  };
+
   return (
     <div>
       <Map
         {...mapOptions}
         ref={mapRef}
         whenReady={onLoad}
-        // onClick={e=>console.log(e)}
       >
         {getTileLayer()}
         <LayersControl>
           <LayersControl.Overlay name="ВЦ ДВО РАН" checked={true}>
+            {props.selectedImageData && props.selectedImageData.map((overlay, index) => {
+              if (overlay.isUsed) return <ImageOverlay key={index} url={overlay.overlay.imageUrl} bounds={overlay.overlay.bounds} opacity={0.8} />
+            })}
             <LayerGroup>
               {props.data.map((n, i) =>
                 <FeatureGroup key={i}>

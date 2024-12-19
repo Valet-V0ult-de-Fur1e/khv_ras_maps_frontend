@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { CSVLink } from 'react-csv';
 import axios from 'axios';
 import "./styles.css"
-import getServerAPIURL from '../serverAPI';
+import getServerAPIURL from '../../features/serverAPI';
 
 const downloadPolygonNDVIData = (polygonId, year, modelName, region) => {
   const [data, setData] = useState([]);
