@@ -207,7 +207,7 @@ const MainMap = (props) => {
         <LayersControl>
           <LayersControl.Overlay name="ВЦ ДВО РАН" checked={true}>
             {props.selectedImageData && props.selectedImageData.map((overlay, index) => {
-              if (overlay.isUsed) return <ImageOverlay key={index} url={overlay.overlay.imageUrl} bounds={overlay.overlay.bounds} opacity={0.8} />
+              if (overlay.isUsed) return <ImageOverlay key={index} url={overlay.overlay.imageUrl} bounds={overlay.overlay.bounds} opacity={0.9} />
             })}
             <LayerGroup>
               {props.data.map((n, i) =>
