@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 import './styles.css';
-import { parseTiffFile } from "../tiffParcer/tiffParcer";
+import { parseTiffFile } from "../../features/parcers/tiffParcer";
 
 const UploadFiles = ({ selectedFiles, setSelectedFiles }) => {
 

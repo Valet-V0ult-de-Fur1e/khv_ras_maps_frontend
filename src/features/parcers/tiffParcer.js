@@ -1,43 +1,33 @@
 import { fromArrayBuffer } from 'geotiff';
 import proj4 from 'proj4';
 
-const targetProjection = 'EPSG:4326'; // WGS 84 (широта/долгота)
+const targetProjection = 'EPSG:4326';
 
 export const parseTiffFile = async (file) => {
   try {
-    // Чтение TIFF файла
+
     const arrayBuffer = await file.arrayBuffer();
     const tiff = await fromArrayBuffer(arrayBuffer);
     const image = await tiff.getImage();
 
-    // Получение метаданных
     const metadata = await image.getFileDirectory();
 
-    // Извлечение исходной проекции
-    const sourceProjection = metadata.GTCitationGeoKey || 'EPSG:32653'; // по умолчанию UTM Zone 53N
-    // Получение границ изображения
+    const sourceProjection = metadata.GTCitationGeoKey || 'EPSG:32653';
     const boundingBox = image.getBoundingBox();
     const [minX, minY, maxX, maxY] = boundingBox;
 
-    const deltaX = -350
-    const deltaY = 2800
+    const bottomLeft = proj4(sourceProjection, targetProjection, [minX - 380, minY - 590]);
+    const topRight = proj4(sourceProjection, targetProjection, [maxX - 700, maxY + 3000]);
 
-    // Преобразование координат в WGS84
-    const bottomLeft = proj4(sourceProjection, targetProjection, [minX + deltaX, minY + deltaY]);
-    const topRight = proj4(sourceProjection, targetProjection, [maxX + deltaX, maxY + deltaY]);
-
-    // Убедитесь, что координаты находятся в правильном порядке [широта, долгота]
     const bounds = [
-      [bottomLeft[1], bottomLeft[0]], // [широта, долгота]
-      [topRight[1], topRight[0]]      // [широта, долгота]
+      [bottomLeft[1], bottomLeft[0]],
+      [topRight[1], topRight[0]]
     ];
 
-    // Чтение растровых данных
     const imageData = await image.readRasters();
     const width = image.getWidth();
     const height = image.getHeight();
 
-    // Создание канваса для отображения изображения
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = width;
@@ -76,11 +66,8 @@ export const parseTiffFile = async (file) => {
 
     const imgData = new ImageData(rgbaArray, width, height);
     ctx.putImageData(imgData, 0, 0);
-
-    // Преобразуем канвас в PNG
     const imageUrl = canvas.toDataURL('image/png');
 
-    // Возвращаем URL и границы
     return {
       imageUrl,
       bounds

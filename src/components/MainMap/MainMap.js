@@ -7,7 +7,6 @@ import Legend from "../../elements/mapLegend/mapLegend.js"
 import "./styles.css"
 import axios from "axios";
 import getServerAPIURL from "../../features/serverAPI.js";
-import { parseTiffFile } from "../../elements/tiffParcer/tiffParcer.js";
 
 let mainMapData = [];
 let userMapData = [];
@@ -207,7 +206,7 @@ const MainMap = (props) => {
         <LayersControl>
           <LayersControl.Overlay name="ВЦ ДВО РАН" checked={true}>
             {props.selectedImageData && props.selectedImageData.map((overlay, index) => {
-              if (overlay.isUsed) return <ImageOverlay key={index} url={overlay.overlay.imageUrl} bounds={overlay.overlay.bounds} opacity={0.9} />
+              if (overlay.isUsed) return <ImageOverlay key={index} url={overlay.overlay.imageUrl} bounds={overlay.overlay.bounds} opacity={0.8} />
             })}
             <LayerGroup>
               {props.data.map((n, i) =>
