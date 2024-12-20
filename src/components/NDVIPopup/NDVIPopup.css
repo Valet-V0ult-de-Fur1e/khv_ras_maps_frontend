@@ -8,13 +8,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 3000;
+    z-index: 5000;
     transform: scale(0);
 }
 
 .modal.active {
     transform: scale(1);
     background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    z-index: 5000
 }
 
 .modal__content {

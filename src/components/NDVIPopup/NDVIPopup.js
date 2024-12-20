@@ -178,8 +178,7 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
         urlReq2
         , {
           headers: {
-            "Content-type": "application/json",
-            // "Access-Control-Allow-Origin": "*"
+            "Content-type": "application/json"
           }
         }
       )
@@ -320,8 +319,8 @@ const NDVIPopup = ({ active, setActive, cropList, selectedPolygonData, selectedY
                         fontSize: 20
                       },
                       legend: {
-                        display: true, //Is the legend shown?
-                        position: "top" //Position of the legend.
+                        display: true,
+                        position: "top" 
                       }
                     }}
                     data={getChartData()}
