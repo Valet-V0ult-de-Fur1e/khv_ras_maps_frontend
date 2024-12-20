@@ -6,9 +6,7 @@ import { parseTiffFile } from "../tiffParcer/tiffParcer";
 const UploadFiles = ({ selectedFiles, setSelectedFiles }) => {
 
   const onDrop = async (files) => {
-    const filesToDeploy = selectedFiles || []; // Start with previously selected files or an empty array
-
-    // Use Promise.all to process all dropped files asynchronously
+    const filesToDeploy = selectedFiles || [];
     const updatedFiles = await Promise.all(files.map(async (file) => {
       const [type, format] = file.type.split('/');
 
@@ -17,40 +15,29 @@ const UploadFiles = ({ selectedFiles, setSelectedFiles }) => {
 
       ].includes(format)) {
         try {
-          // Call parseTiffFile to process the image and get the overlay
           const imageOverlay = await parseTiffFile(file);
-
-          // Add overlay to the file object directly
           const fileWithOverlay = {
-            file,
+            file: file.name,
             isUsed: true,
-            overlay: imageOverlay // Attach the parsed overlay (imageUrl and bounds)
+            overlay: imageOverlay
           };
-
-          return fileWithOverlay; // Return the file with overlay attached
+          return fileWithOverlay;
         } catch (error) {
-          // Handle any error during TIFF parsing
           console.error(`Error processing file ${file.name}:`, error);
           return null;
         }
       } else {
-        // Alert if the file format is not supported
         alert(`${file.name.split(".")[0]} - неправильный формат файла!!!`);
         return null;
       }
     }));
-
-    // Filter out any null values (invalid files)
     const validFiles = updatedFiles.filter((file) => file !== null);
-
-    // Update the selected files state with the new files (with overlays)
-    setSelectedFiles([...filesToDeploy, ...validFiles]); // Merge old and new files
+    setSelectedFiles([...filesToDeploy, ...validFiles]);
   };
 
-  // Helper function to format the file name for display
   const getCorrectFileName = (fileName) => {
     let [name, format] = fileName.split('.');
-    const nameMaxLength = 17; // Max length for the file name
+    const nameMaxLength = 17;
     if (name.length > nameMaxLength) {
       name = name.slice(0, nameMaxLength - 4) + "... ";
     }
@@ -69,16 +56,14 @@ const UploadFiles = ({ selectedFiles, setSelectedFiles }) => {
           </section>
         )}
       </Dropzone>
-
-      {/* Display selected files if any */}
       {selectedFiles && selectedFiles.length > 0 && (
         <div className="card">
           <div className="card-header">Подгруженные файлы</div>
           <ul className="list-group list-group-flush">
             {selectedFiles.map((file, index) => (
-              <li className="list-group-item" key={file.file.name}>
+              <li className="list-group-item" key={file.name}>
                 <p>
-                  {getCorrectFileName(file.file.name)}
+                  {getCorrectFileName(file.file)}
                   <input
                     type="checkbox"
                     checked={file.isUsed}
@@ -89,7 +74,7 @@ const UploadFiles = ({ selectedFiles, setSelectedFiles }) => {
                             return {
                               file: fileData.file,
                               isUsed: e.target.checked,
-                              overlay: fileData.overlay // Keep the overlay intact
+                              overlay: fileData.overlay
                             };
                           }
                           return fileData;
